@@ -3736,8 +3736,8 @@ local function populateToolsTab(toolsFrame, screenGui)
 							level = level,
 							name = info.name or "?",
 							source = info.source or "?",
-							currentline = info.currentline,
-							what = info.what
+							currentline = info.currentline or -1,
+							what = info.what or "unknown"
 						})
 
 						level = level + 1
@@ -3771,8 +3771,9 @@ local function populateToolsTab(toolsFrame, screenGui)
 					for i, frame in ipairs(frames) do
 						if i <= 10 then
 							results = results .. string.format('<font color="#9664C8">Level %d:</font> %s\n', frame.level, frame.name)
-							results = results .. string.format('  Source: %s\n', frame.source:sub(1, 50))
-							results = results .. string.format('  Line: %d | Type: %s\n', frame.currentline or -1, frame.what)
+							local sourceStr = tostring(frame.source)
+							results = results .. string.format('  Source: %s\n', sourceStr:sub(1, math.min(50, #sourceStr)))
+							results = results .. string.format('  Line: %d | Type: %s\n', frame.currentline, frame.what)
 						end
 					end
 					if #frames > 10 then
@@ -4133,9 +4134,12 @@ local function setupChatSpy(chatScroll)
 		local hidden = true
 
 		local conn = getmsg.OnClientEvent:Connect(function(packet, channel)
-			if packet.SpeakerUserId == p.UserId and packet.Message == msg:sub(#msg-#packet.Message+1) then
-				if channel == "All" or (channel == "Team" and Players[packet.FromSpeaker].Team == player.Team) then
-					hidden = false
+			if packet.SpeakerUserId == p.UserId and packet.Message and #msg >= #packet.Message then
+				local msgSubstr = msg:sub(math.max(1, #msg-#packet.Message+1))
+				if packet.Message == msgSubstr then
+					if channel == "All" or (channel == "Team" and packet.FromSpeaker and Players[packet.FromSpeaker] and Players[packet.FromSpeaker].Team == player.Team) then
+						hidden = false
+					end
 				end
 			end
 		end)
@@ -4199,9 +4203,12 @@ local function setupChatSpy(chatScroll)
 				local hidden = true
 
 				local conn = getmsg.OnClientEvent:Connect(function(packet, channel)
-					if packet.SpeakerUserId == p.UserId and packet.Message == msg:sub(#msg-#packet.Message+1) then
-						if channel == "All" or (channel == "Team" and Players[packet.FromSpeaker].Team == player.Team) then
-							hidden = false
+					if packet.SpeakerUserId == p.UserId and packet.Message and #msg >= #packet.Message then
+						local msgSubstr = msg:sub(math.max(1, #msg-#packet.Message+1))
+						if packet.Message == msgSubstr then
+							if channel == "All" or (channel == "Team" and packet.FromSpeaker and Players[packet.FromSpeaker] and Players[packet.FromSpeaker].Team == player.Team) then
+								hidden = false
+							end
 						end
 					end
 				end)
