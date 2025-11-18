@@ -1834,7 +1834,7 @@ local function populateScanTab(scanFrame, screenGui)
 						table.insert(vulnerableRemotes, {
 							remote = remote,
 							reason = reason,
-							severity = remote.Name:match("Admin") or remote.Name:match("Ban") or remote.Name:match("Kick") and "CRITICAL" or "HIGH"
+							severity = (remote.Name:match("Admin") or remote.Name:match("Ban") or remote.Name:match("Kick")) and "CRITICAL" or "HIGH"
 						})
 					end
 				end
@@ -1938,7 +1938,7 @@ local function populateScanTab(scanFrame, screenGui)
 				local metatableHooked = false
 				pcall(function()
 					local mt = getrawmetatable(game)
-					if mt and mt.__namecall then
+					if mt and mt.__namecall and debug and debug.getinfo then
 						local info = debug.getinfo(mt.__namecall)
 						if info and info.what == "Lua" then
 							metatableHooked = true
@@ -3605,7 +3605,7 @@ local function populateToolsTab(toolsFrame, screenGui)
 					local mt = getrawmetatable(game)
 					if mt then
 						-- Check if __namecall is hooked
-						if mt.__namecall then
+						if mt.__namecall and debug and debug.getinfo then
 							local info = debug.getinfo(mt.__namecall)
 							if info and info.what == "Lua" then
 								results = results .. '<font color="#B45050">⚠️</font> __namecall appears hooked (Lua function)\n'
