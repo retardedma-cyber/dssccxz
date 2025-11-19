@@ -2210,10 +2210,9 @@ local function populateScanTab(scanFrame, screenGui)
 						end
 					end)
 				end
-			end
 
-			results = results .. string.format('<b>Scripts Analyzed:</b> %d\n', totalScripts)
-			results = results .. string.format('<b><font color="#C8B450">Suspicious Scripts:</font></b> %d\n\n', suspiciousScripts)
+				results = results .. string.format('<b>Scripts Analyzed:</b> %d\n', totalScripts)
+				results = results .. string.format('<b><font color="#C8B450">Suspicious Scripts:</font></b> %d\n\n', suspiciousScripts)
 
 				for i, issue in ipairs(scriptIssues) do
 					if i <= 10 then
@@ -2232,23 +2231,23 @@ local function populateScanTab(scanFrame, screenGui)
 				updateProgress(currentStep, 13, "🌍 CHECKING ENVIRONMENT...", "Detecting executor function pollution...")
 				results = results .. '\n<b><font color="#C8B450">🌍 ENVIRONMENT POLLUTION ANALYSIS</font></b>\n\n'
 
-			local executorFunctions = {
-				"getgenv", "getrenv", "getsenv", "getrawmetatable", "setrawmetatable",
-				"hookfunction", "hookmetamethod", "getgc", "getupvalues", "getconstants",
-				"decompile", "setclipboard", "writefile", "readfile"
-			}
+				local executorFunctions = {
+					"getgenv", "getrenv", "getsenv", "getrawmetatable", "setrawmetatable",
+					"hookfunction", "hookmetamethod", "getgc", "getupvalues", "getconstants",
+					"decompile", "setclipboard", "writefile", "readfile"
+				}
 
-			local detectedPollution = 0
-			for _, funcName in ipairs(executorFunctions) do
-				if _G[funcName] then
-					detectedPollution = detectedPollution + 1
+				local detectedPollution = 0
+				for _, funcName in ipairs(executorFunctions) do
+					if _G[funcName] then
+						detectedPollution = detectedPollution + 1
+					end
 				end
-			end
 
-			local pollutionLevel = detectedPollution > 10 and "HIGH" or detectedPollution > 5 and "MEDIUM" or "LOW"
-			results = results .. string.format('<b>Pollution Level:</b> <font color="%s">%s</font> (%d/%d functions)\n',
-				pollutionLevel == "HIGH" and "#B45050" or pollutionLevel == "MEDIUM" and "#C8B450" or "#50B464",
-				pollutionLevel, detectedPollution, #executorFunctions)
+				local pollutionLevel = detectedPollution > 10 and "HIGH" or detectedPollution > 5 and "MEDIUM" or "LOW"
+				results = results .. string.format('<b>Pollution Level:</b> <font color="%s">%s</font> (%d/%d functions)\n',
+					pollutionLevel == "HIGH" and "#B45050" or pollutionLevel == "MEDIUM" and "#C8B450" or "#50B464",
+					pollutionLevel, detectedPollution, #executorFunctions)
 
 				if detectedPollution > 0 then
 					results = results .. '<font color="#C8B450">⚠️  Executor functions detected in global environment</font>\n'
@@ -2265,26 +2264,26 @@ local function populateScanTab(scanFrame, screenGui)
 				updateProgress(currentStep, 13, "🔬 CHECKING METATABLES...", "Analyzing metatable integrity...")
 				results = results .. '\n<b><font color="#9664C8">🔬 METATABLE INTEGRITY CHECK</font></b>\n\n'
 
-			if getrawmetatable then
-				local metatableHooked = false
-				pcall(function()
-					local mt = getrawmetatable(game)
-					if mt and mt.__namecall and debug and debug.getinfo then
-						local info = debug.getinfo(mt.__namecall)
-						if info and info.what == "Lua" then
-							metatableHooked = true
+				if getrawmetatable then
+					local metatableHooked = false
+					pcall(function()
+						local mt = getrawmetatable(game)
+						if mt and mt.__namecall and debug and debug.getinfo then
+							local info = debug.getinfo(mt.__namecall)
+							if info and info.what == "Lua" then
+								metatableHooked = true
+							end
 						end
-					end
-				end)
+					end)
 
-				if metatableHooked then
-					results = results .. '<font color="#B45050">⚠️  CRITICAL: __namecall appears hooked!</font>\n'
-					results = results .. '   ↳ Possible metamethod tampering detected\n'
-					totalIssues = totalIssues + 1
-					criticalIssues = criticalIssues + 1
-				else
-					results = results .. '<font color="#50B464">✓ Metatables appear clean</font>\n'
-				end
+					if metatableHooked then
+						results = results .. '<font color="#B45050">⚠️  CRITICAL: __namecall appears hooked!</font>\n'
+						results = results .. '   ↳ Possible metamethod tampering detected\n'
+						totalIssues = totalIssues + 1
+						criticalIssues = criticalIssues + 1
+					else
+						results = results .. '<font color="#50B464">✓ Metatables appear clean</font>\n'
+					end
 				else
 					results = results .. '<font color="#C8B450">⚠️  Cannot check (getrawmetatable unavailable)</font>\n'
 				end
@@ -2297,30 +2296,30 @@ local function populateScanTab(scanFrame, screenGui)
 				updateProgress(currentStep, 13, "🗑️  SCANNING MEMORY...", "Detecting memory leaks...")
 				results = results .. '\n<b><font color="#50B464">🗑️  MEMORY LEAK DETECTION</font></b>\n\n'
 
-			if getgc then
-				local gcObjects = getgc(true)
-				local hiddenInstances = 0
+				if getgc then
+					local gcObjects = getgc(true)
+					local hiddenInstances = 0
 
-				for _, obj in ipairs(gcObjects) do
-					if typeof(obj) == "Instance" then
-						pcall(function()
-							if not obj:IsDescendantOf(game) then
-								hiddenInstances = hiddenInstances + 1
-							end
-						end)
+					for _, obj in ipairs(gcObjects) do
+						if typeof(obj) == "Instance" then
+							pcall(function()
+								if not obj:IsDescendantOf(game) then
+									hiddenInstances = hiddenInstances + 1
+								end
+							end)
+						end
 					end
-				end
 
-				results = results .. string.format('<b>GC Objects:</b> %d\n', #gcObjects)
-				results = results .. string.format('<b>Hidden Instances:</b> %d\n', hiddenInstances)
+					results = results .. string.format('<b>GC Objects:</b> %d\n', #gcObjects)
+					results = results .. string.format('<b>Hidden Instances:</b> %d\n', hiddenInstances)
 
-				if hiddenInstances > 50 then
-					results = results .. '<font color="#C8B450">⚠️  Possible memory leaks detected</font>\n'
-					totalIssues = totalIssues + 1
-					mediumIssues = mediumIssues + 1
-				else
-					results = results .. '<font color="#50B464">✓ Memory appears healthy</font>\n'
-				end
+					if hiddenInstances > 50 then
+						results = results .. '<font color="#C8B450">⚠️  Possible memory leaks detected</font>\n'
+						totalIssues = totalIssues + 1
+						mediumIssues = mediumIssues + 1
+					else
+						results = results .. '<font color="#50B464">✓ Memory appears healthy</font>\n'
+					end
 				else
 					results = results .. '<font color="#C8B450">⚠️  Cannot scan (getgc unavailable)</font>\n'
 				end
@@ -2333,21 +2332,21 @@ local function populateScanTab(scanFrame, screenGui)
 				updateProgress(currentStep, 13, "🎨 SCANNING GUI...", "Analyzing GUI injection points...")
 				results = results .. '\n<b><font color="#5AA3E0">🎨 GUI INJECTION VULNERABILITY SCAN</font></b>\n\n'
 
-			local textBoxes = 0
-			local unsanitizedInputs = 0
+				local textBoxes = 0
+				local unsanitizedInputs = 0
 
-			for _, obj in ipairs(game:GetDescendants()) do
-				if obj:IsA("TextBox") then
-					textBoxes = textBoxes + 1
-					-- Check if TextBox is in ReplicatedStorage or accessible
-					if obj:IsDescendantOf(game:GetService("ReplicatedStorage")) or obj:IsDescendantOf(game:GetService("StarterGui")) then
-						unsanitizedInputs = unsanitizedInputs + 1
+				for _, obj in ipairs(allDescendants) do
+					if obj:IsA("TextBox") then
+						textBoxes = textBoxes + 1
+						-- Check if TextBox is in ReplicatedStorage or accessible
+						if obj:IsDescendantOf(game:GetService("ReplicatedStorage")) or obj:IsDescendantOf(game:GetService("StarterGui")) then
+							unsanitizedInputs = unsanitizedInputs + 1
+						end
 					end
 				end
-			end
 
-			results = results .. string.format('<b>TextBoxes Found:</b> %d\n', textBoxes)
-			results = results .. string.format('<b>Potentially Exploitable:</b> %d\n', unsanitizedInputs)
+				results = results .. string.format('<b>TextBoxes Found:</b> %d\n', textBoxes)
+				results = results .. string.format('<b>Potentially Exploitable:</b> %d\n', unsanitizedInputs)
 
 				if unsanitizedInputs > 0 then
 					results = results .. '<font color="#C8B450">⚠️  Unsanitized user input fields detected</font>\n'
@@ -2411,20 +2410,19 @@ local function populateScanTab(scanFrame, screenGui)
 						})
 					end
 				end
-			end
 
-			results = results .. string.format('<b>Backdoor Indicators:</b> %d\n\n', backdoorIndicators)
-			for i, suspect in ipairs(suspiciousRequires) do
-				if i <= 10 then
-					results = results .. string.format('<font color="#B45050">⚠️  %s</font>\n   ↳ %s\n   ↳ Path: %s\n',
-						suspect.name, suspect.reason, suspect.path)
-					totalIssues = totalIssues + 1
-					highIssues = highIssues + 1
+				results = results .. string.format('<b>Backdoor Indicators:</b> %d\n\n', backdoorIndicators)
+				for i, suspect in ipairs(suspiciousRequires) do
+					if i <= 10 then
+						results = results .. string.format('<font color="#B45050">⚠️  %s</font>\n   ↳ %s\n   ↳ Path: %s\n',
+							suspect.name, suspect.reason, suspect.path)
+						totalIssues = totalIssues + 1
+						highIssues = highIssues + 1
+					end
 				end
-			end
-			if #suspiciousRequires > 10 then
-				results = results .. string.format('... and %d more\n', #suspiciousRequires - 10)
-			end
+				if #suspiciousRequires > 10 then
+					results = results .. string.format('... and %d more\n', #suspiciousRequires - 10)
+				end
 				if backdoorIndicators == 0 then
 					results = results .. '<font color="#50B464">✓ No obvious backdoors detected</font>\n'
 				end
@@ -2492,20 +2490,19 @@ local function populateScanTab(scanFrame, screenGui)
 						})
 					end
 				end
-			end
 
-			results = results .. string.format('<b>Obfuscated Scripts:</b> %d\n\n', obfuscatedScripts)
-			for i, obf in ipairs(obfuscatedList) do
-				if i <= 8 then
-					results = results .. string.format('<font color="#9664C8">🔒 %s</font>\n   ↳ %s\n   ↳ Path: %s\n',
-						obf.name, obf.type, obf.path)
-					totalIssues = totalIssues + 1
-					mediumIssues = mediumIssues + 1
+				results = results .. string.format('<b>Obfuscated Scripts:</b> %d\n\n', obfuscatedScripts)
+				for i, obf in ipairs(obfuscatedList) do
+					if i <= 8 then
+						results = results .. string.format('<font color="#9664C8">🔒 %s</font>\n   ↳ %s\n   ↳ Path: %s\n',
+							obf.name, obf.type, obf.path)
+						totalIssues = totalIssues + 1
+						mediumIssues = mediumIssues + 1
+					end
 				end
-			end
-			if #obfuscatedList > 8 then
-				results = results .. string.format('... and %d more\n', #obfuscatedList - 8)
-			end
+				if #obfuscatedList > 8 then
+					results = results .. string.format('... and %d more\n', #obfuscatedList - 8)
+				end
 				if obfuscatedScripts == 0 then
 					results = results .. '<font color="#50B464">✓ No obfuscated scripts detected</font>\n'
 				end
@@ -2522,23 +2519,23 @@ local function populateScanTab(scanFrame, screenGui)
 				for _, script in ipairs(scripts) do
 					if script:IsA("Script") and not script:IsDescendantOf(game:GetService("ServerScriptService")) and
 					   not script:IsDescendantOf(game:GetService("ServerStorage")) then
-					misplacedScripts = misplacedScripts + 1
-					if misplacedScripts <= 5 then
-						results = results .. string.format('<font color="#C8B450">⚠️  Server Script in client location:</font>\n   ↳ %s\n',
-							script:GetFullName())
+						misplacedScripts = misplacedScripts + 1
+						if misplacedScripts <= 5 then
+							results = results .. string.format('<font color="#C8B450">⚠️  Server Script in client location:</font>\n   ↳ %s\n',
+								script:GetFullName())
+						end
 					end
 				end
-			end
 
-			if misplacedScripts > 5 then
-				results = results .. string.format('... and %d more misplaced scripts\n', misplacedScripts - 5)
-			end
+				if misplacedScripts > 5 then
+					results = results .. string.format('... and %d more misplaced scripts\n', misplacedScripts - 5)
+				end
 
-			if misplacedScripts > 0 then
-				results = results .. string.format('\n<b>Total Misplaced:</b> %d\n', misplacedScripts)
-				results = results .. '<font color="#C8B450">⚠️  Server scripts should be in ServerScriptService</font>\n'
-				totalIssues = totalIssues + 1
-				mediumIssues = mediumIssues + 1
+				if misplacedScripts > 0 then
+					results = results .. string.format('\n<b>Total Misplaced:</b> %d\n', misplacedScripts)
+					results = results .. '<font color="#C8B450">⚠️  Server scripts should be in ServerScriptService</font>\n'
+					totalIssues = totalIssues + 1
+					mediumIssues = mediumIssues + 1
 				else
 					results = results .. '<font color="#50B464">✓ All server scripts properly placed</font>\n'
 				end
@@ -2551,39 +2548,39 @@ local function populateScanTab(scanFrame, screenGui)
 				updateProgress(currentStep, 13, "🌐 SCANNING HTTP...", "Checking HttpService security...")
 				results = results .. '\n<b><font color="#5AA3E0">🌐 HTTPSERVICE SECURITY SCAN</font></b>\n\n'
 
-			local httpEnabled = pcall(function()
-				return game:GetService("HttpService"):GetAsync("https://www.google.com")
-			end)
+				local httpEnabled = pcall(function()
+					return game:GetService("HttpService"):GetAsync("https://www.google.com")
+				end)
 
-			if httpEnabled then
-				results = results .. '<font color="#C8B450">⚠️  HttpService is ENABLED</font>\n'
-				results = results .. '   ↳ External HTTP requests allowed\n'
-				results = results .. '   ↳ Potential data exfiltration risk\n'
-				totalIssues = totalIssues + 1
-				mediumIssues = mediumIssues + 1
-			else
-				results = results .. '<font color="#50B464">✓ HttpService disabled or restricted</font>\n'
-			end
+				if httpEnabled then
+					results = results .. '<font color="#C8B450">⚠️  HttpService is ENABLED</font>\n'
+					results = results .. '   ↳ External HTTP requests allowed\n'
+					results = results .. '   ↳ Potential data exfiltration risk\n'
+					totalIssues = totalIssues + 1
+					mediumIssues = mediumIssues + 1
+				else
+					results = results .. '<font color="#50B464">✓ HttpService disabled or restricted</font>\n'
+				end
 
-			-- Check for suspicious URLs in scripts
-			local suspiciousUrls = 0
-			if decompile then
-				for _, script in ipairs(game:GetDescendants()) do
-					if (script:IsA("Script") or script:IsA("LocalScript")) and suspiciousUrls < 5 then
-						pcall(function()
-							local source = decompile(script)
-							if source and (source:match("http://") or source:match("https://")) then
-								-- Check for non-Roblox URLs
-								if not source:match("roblox%.com") and not source:match("rbxcdn%.com") then
-									suspiciousUrls = suspiciousUrls + 1
-									results = results .. string.format('<font color="#B45050">⚠️  External URL found in:</font> %s\n',
-										script:GetFullName())
+				-- Check for suspicious URLs in scripts
+				local suspiciousUrls = 0
+				if decompile then
+					for _, script in ipairs(scripts) do
+						if (script:IsA("Script") or script:IsA("LocalScript")) and suspiciousUrls < 5 then
+							pcall(function()
+								local source = decompile(script)
+								if source and (source:match("http://") or source:match("https://")) then
+									-- Check for non-Roblox URLs
+									if not source:match("roblox%.com") and not source:match("rbxcdn%.com") then
+										suspiciousUrls = suspiciousUrls + 1
+										results = results .. string.format('<font color="#B45050">⚠️  External URL found in:</font> %s\n',
+											script:GetFullName())
+									end
 								end
-							end
-						end)
+							end)
+						end
 					end
 				end
-			end
 
 				if suspiciousUrls > 0 then
 					totalIssues = totalIssues + 1
@@ -2609,7 +2606,6 @@ local function populateScanTab(scanFrame, screenGui)
 						end
 					end
 				end
-			end
 
 				if datastoreRemotes > 0 then
 					results = results .. string.format('\n<b>DataStore Remotes Found:</b> %d\n', datastoreRemotes)
