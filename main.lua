@@ -296,7 +296,21 @@ local function createResultsWindow(title, content, parentGui)
 	createUICorner(4).Parent = copyBtn
 
 	copyBtn.MouseButton1Click:Connect(function()
-		local plainText = content:gsub("<[^>]+>", "") -- Remove rich text tags
+		-- Enhanced plain text conversion - strip all Roblox rich text tags properly
+		local plainText = content
+		plainText = plainText:gsub('<font[^>]*>', '') -- Remove <font> tags
+		plainText = plainText:gsub('</font>', '')      -- Remove </font> tags
+		plainText = plainText:gsub('<b>', '')          -- Remove <b> tags
+		plainText = plainText:gsub('</b>', '')         -- Remove </b> tags
+		plainText = plainText:gsub('<i>', '')          -- Remove <i> tags
+		plainText = plainText:gsub('</i>', '')         -- Remove </i> tags
+		plainText = plainText:gsub('<u>', '')          -- Remove <u> tags
+		plainText = plainText:gsub('</u>', '')         -- Remove </u> tags
+		plainText = plainText:gsub('<s>', '')          -- Remove <s> tags
+		plainText = plainText:gsub('</s>', '')         -- Remove </s> tags
+		plainText = plainText:gsub('<br%s*/?>', '\n')  -- Convert <br> to newline
+		plainText = plainText:gsub('<[^>]+>', '')      -- Remove any remaining tags
+
 		if copyToClipboard(plainText) then
 			copyBtn.Text = "COPIED!"
 			copyBtn.BackgroundColor3 = CONFIG.Colors.AccentBlue
@@ -2015,6 +2029,14 @@ local function populateScanTab(scanFrame, screenGui)
 
 			local currentStep = 2
 
+			-- Helper function to check if script is a system/core script
+			local function isSystemScript(script)
+				local path = script:GetFullName()
+				return path:match("CoreGui") or path:match("CorePackages") or
+				       path:match("CoreScripts") or path:match("PlayerScripts%.RobloxControls") or
+				       path:match("StarterPlayer%.StarterPlayerScripts%.") and not path:match("StarterPlayer%.StarterPlayerScripts%.[^%.]*$")
+			end
+
 			-- 1. ANTI-CHEAT DETECTION
 			if moduleCheckboxes["anticheat"].enabled then
 				updateProgress(currentStep, 13, "SCANNING ANTI-CHEAT", "Detecting admin and anti-exploit systems...")
@@ -2332,25 +2354,39 @@ local function populateScanTab(scanFrame, screenGui)
 				results = results .. '\n<b><font color="#5AA3E0">GUI INJECTION VULNERABILITY SCAN</font></b>\n\n'
 
 				local textBoxes = 0
-				local unsanitizedInputs = 0
+				local vulnerableTextBoxes = {}
 
 				for _, obj in ipairs(allDescendants) do
 					if obj:IsA("TextBox") then
 						textBoxes = textBoxes + 1
 						-- Check if TextBox is in ReplicatedStorage or accessible
 						if obj:IsDescendantOf(game:GetService("ReplicatedStorage")) or obj:IsDescendantOf(game:GetService("StarterGui")) then
-							unsanitizedInputs = unsanitizedInputs + 1
+							table.insert(vulnerableTextBoxes, {
+								name = obj.Name,
+								path = obj:GetFullName(),
+								parent = obj.Parent and obj.Parent.Name or "Unknown"
+							})
 						end
 					end
 				end
 
 				results = results .. string.format('<b>TextBoxes Found:</b> %d\n', textBoxes)
-				results = results .. string.format('<b>Potentially Exploitable:</b> %d\n', unsanitizedInputs)
+				results = results .. string.format('<b>Potentially Exploitable:</b> %d\n\n', #vulnerableTextBoxes)
 
-				if unsanitizedInputs > 0 then
-					results = results .. '<font color="#C8B450">[!] Unsanitized user input fields detected</font>\n'
-					totalIssues = totalIssues + 1
-					lowIssues = lowIssues + 1
+				if #vulnerableTextBoxes > 0 then
+					for i, tb in ipairs(vulnerableTextBoxes) do
+						if i <= 10 then
+							results = results .. string.format('<font color="#C8B450">[!] %s</font>\n   ↳ Parent: %s\n   ↳ Path: %s\n   ↳ Payload: game.%s.Text = "XSS"\n',
+								tb.name, tb.parent, tb.path, tb.path)
+							totalIssues = totalIssues + 1
+							lowIssues = lowIssues + 1
+						end
+					end
+					if #vulnerableTextBoxes > 10 then
+						results = results .. string.format('\n[!] <font color="#C8B450">+%d more exploitable TextBoxes (click "Show All" to expand)</font>\n', #vulnerableTextBoxes - 10)
+					end
+				else
+					results = results .. '<font color="#50B464">[OK] No exploitable TextBoxes detected</font>\n'
 				end
 				task.wait(0.1)
 				currentStep = currentStep + 1
@@ -2363,21 +2399,27 @@ local function populateScanTab(scanFrame, screenGui)
 
 				local backdoorIndicators = 0
 				local suspiciousRequires = {}
+				local systemScriptsSkipped = 0
 
 				for _, script in ipairs(scripts) do
-					local scriptName = script.Name:lower()
+					-- Skip system/core scripts
+					if isSystemScript(script) then
+						systemScriptsSkipped = systemScriptsSkipped + 1
+					else
+						local scriptName = script.Name:lower()
 
-					-- Check for suspicious script names
-					local backdoorNames = {"backdoor", "infect", "virus", "inject", "hidden", "hiddengui", "load", "loader"}
-					for _, bd in ipairs(backdoorNames) do
-						if scriptName:match(bd) then
-							backdoorIndicators = backdoorIndicators + 1
-							table.insert(suspiciousRequires, {
-								name = script.Name,
-								path = script:GetFullName(),
-								reason = "Suspicious name: " .. bd
-							})
-							break
+						-- Check for suspicious script names (refined list)
+						local backdoorNames = {"backdoor", "infect", "virus", "inject", "hidden", "hiddengui"}
+						for _, bd in ipairs(backdoorNames) do
+							if scriptName:match(bd) then
+								backdoorIndicators = backdoorIndicators + 1
+								table.insert(suspiciousRequires, {
+									name = script.Name,
+									path = script:GetFullName(),
+									reason = "Suspicious name: " .. bd
+								})
+								break
+							end
 						end
 					end
 
@@ -2410,7 +2452,10 @@ local function populateScanTab(scanFrame, screenGui)
 					end
 				end
 
+				results = results .. string.format('<b>Scripts Scanned:</b> %d\n', #scripts - systemScriptsSkipped)
+				results = results .. string.format('<b>System Scripts Excluded:</b> %d\n', systemScriptsSkipped)
 				results = results .. string.format('<b>Backdoor Indicators:</b> %d\n\n', backdoorIndicators)
+
 				for i, suspect in ipairs(suspiciousRequires) do
 					if i <= 10 then
 						results = results .. string.format('<font color="#B45050">[!] %s</font>\n   ↳ %s\n   ↳ Path: %s\n',
@@ -2420,7 +2465,7 @@ local function populateScanTab(scanFrame, screenGui)
 					end
 				end
 				if #suspiciousRequires > 10 then
-					results = results .. string.format('... and %d more\n', #suspiciousRequires - 10)
+					results = results .. string.format('\n[!] <font color="#B45050">+%d more suspicious scripts (click "Show All" to expand)</font>\n', #suspiciousRequires - 10)
 				end
 				if backdoorIndicators == 0 then
 					results = results .. '<font color="#50B464">[OK] No obvious backdoors detected</font>\n'
@@ -2436,66 +2481,135 @@ local function populateScanTab(scanFrame, screenGui)
 
 				local obfuscatedScripts = 0
 				local obfuscatedList = {}
+				local systemScriptsSkipped = 0
 				local decompileCount = 0
-				local maxDecompile = 50 -- Limit decompile calls for performance
+				local maxDecompile = 30 -- Limit decompile calls for performance
 
-				for _, script in ipairs(scripts) do
-					local isObfuscated = false
-					local obfType = ""
-
-					-- Check script name for obfuscation patterns (fast check)
-					local name = script.Name
-					if name:match("^[a-f0-9]+$") or -- Hex names
-					   name:match("^[IL1O0]+$") or -- Confusing characters
-					   name:len() > 40 or -- Very long names
-					   name:match("_+") and name:len() > 20 then -- Many underscores
-						isObfuscated = true
-						obfType = "Suspicious name pattern"
+				-- Advanced obfuscation detection
+				local function analyzeObfuscation(script)
+					if isSystemScript(script) then
+						return false, nil
 					end
 
-					-- Only decompile if name is suspicious and under limit (performance)
-					if decompile and isObfuscated and decompileCount < maxDecompile then
+					local isObfuscated = false
+					local obfType = ""
+					local confidence = 0
+
+					-- Check 1: Suspicious script name patterns (fast)
+					local name = script.Name
+					if name:match("^[a-f0-9]+$") and name:len() > 10 then -- Hex names
+						isObfuscated = true
+						obfType = "Hex name pattern"
+						confidence = confidence + 20
+					elseif name:match("^[IL1O0]+$") and name:len() > 8 then -- Confusing characters
+						isObfuscated = true
+						obfType = "Confusing character name"
+						confidence = confidence + 25
+					elseif name:len() > 50 then -- Very long names
+						isObfuscated = true
+						obfType = "Abnormally long name"
+						confidence = confidence + 15
+					end
+
+					-- Check 2: Advanced source analysis (if decompile available)
+					if decompile and decompileCount < maxDecompile then
 						decompileCount = decompileCount + 1
 						pcall(function()
 							local source = decompile(script)
-							if source then
-								-- Luraph signature
+							if source and #source > 100 then
+								-- Check for non-printable characters
+								local nonPrintable = 0
+								for i = 1, #source do
+									local byte = source:byte(i)
+									if byte and (byte < 32 or byte > 126) and byte ~= 9 and byte ~= 10 and byte ~= 13 then
+										nonPrintable = nonPrintable + 1
+									end
+								end
+								local nonPrintableRatio = nonPrintable / #source
+								if nonPrintableRatio > 0.05 then
+									isObfuscated = true
+									obfType = string.format("High non-printable ratio (%.1f%%)", nonPrintableRatio * 100)
+									confidence = confidence + 40
+								end
+
+								-- Check for Base64 blocks
+								if source:match("[A-Za-z0-9+/]====") or source:match("[A-Za-z0-9+/]{50,}") then
+									isObfuscated = true
+									obfType = "Base64 encoded data detected"
+									confidence = confidence + 30
+								end
+
+								-- Check for bytecode-like patterns
+								if source:match("\\x%x%x") or source:match("\\%d%d%d") then
+									isObfuscated = true
+									obfType = "Bytecode-like escape sequences"
+									confidence = confidence + 35
+								end
+
+								-- Known obfuscator signatures
 								if source:match("luraph") or source:match("LPH_") then
-									obfType = "Luraph obfuscation"
+									isObfuscated = true
+									obfType = "Luraph obfuscator signature"
+									confidence = 100
+								elseif source:match("IronBrew") or source:match("PSU_") then
+									isObfuscated = true
+									obfType = "IronBrew obfuscator signature"
+									confidence = 100
+								elseif source:match("Xen_") or source:match("luaU_") then
+									isObfuscated = true
+									obfType = "Synapse Xen signature"
+									confidence = 100
 								end
-								-- IronBrew signature
-								if source:match("IronBrew") or source:match("PSU_") then
-									obfType = "IronBrew obfuscation"
+
+								-- Check for excessive string concatenation (obfuscation technique)
+								local concatCount = 0
+								for _ in source:gmatch("%.%.") do
+									concatCount = concatCount + 1
 								end
-								-- Synapse Xen signature
-								if source:match("Xen_") or source:match("luaU_") then
-									obfType = "Synapse Xen obfuscation"
+								if concatCount > 50 and #source < 5000 then
+									isObfuscated = true
+									obfType = "Excessive string concatenation"
+									confidence = confidence + 20
 								end
 							end
 						end)
 					end
 
-					if isObfuscated then
-						obfuscatedScripts = obfuscatedScripts + 1
-						table.insert(obfuscatedList, {
-							name = script.Name,
-							path = script:GetFullName(),
-							type = obfType
-						})
+					return isObfuscated, obfType, confidence
+				end
+
+				for _, script in ipairs(scripts) do
+					if isSystemScript(script) then
+						systemScriptsSkipped = systemScriptsSkipped + 1
+					else
+						local isObf, obfType, confidence = analyzeObfuscation(script)
+						if isObf then
+							obfuscatedScripts = obfuscatedScripts + 1
+							table.insert(obfuscatedList, {
+								name = script.Name,
+								path = script:GetFullName(),
+								type = obfType,
+								confidence = confidence or 0
+							})
+						end
 					end
 				end
 
+				results = results .. string.format('<b>Scripts Scanned:</b> %d\n', #scripts - systemScriptsSkipped)
+				results = results .. string.format('<b>System Scripts Excluded:</b> %d\n', systemScriptsSkipped)
 				results = results .. string.format('<b>Obfuscated Scripts:</b> %d\n\n', obfuscatedScripts)
+
 				for i, obf in ipairs(obfuscatedList) do
 					if i <= 8 then
-						results = results .. string.format('<font color="#9664C8">[OBF] %s</font>\n   ↳ %s\n   ↳ Path: %s\n',
-							obf.name, obf.type, obf.path)
+						local confidenceColor = obf.confidence >= 80 and "#B45050" or obf.confidence >= 50 and "#C8B450" or "#9664C8"
+						results = results .. string.format('<font color="%s">[OBF:%d%%] %s</font>\n   ↳ Type: %s\n   ↳ Path: %s\n',
+							confidenceColor, obf.confidence, obf.name, obf.type, obf.path)
 						totalIssues = totalIssues + 1
 						mediumIssues = mediumIssues + 1
 					end
 				end
 				if #obfuscatedList > 8 then
-					results = results .. string.format('... and %d more\n', #obfuscatedList - 8)
+					results = results .. string.format('\n[!] <font color="#9664C8">+%d more obfuscated scripts (click "Show All" to expand)</font>\n', #obfuscatedList - 8)
 				end
 				if obfuscatedScripts == 0 then
 					results = results .. '<font color="#50B464">[OK] No obfuscated scripts detected</font>\n'
