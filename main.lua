@@ -1714,7 +1714,7 @@ local function populateScanTab(scanFrame, screenGui)
 	descLabel.Size = UDim2.new(1, -40, 0, 60)
 	descLabel.BackgroundTransparency = 1
 	descLabel.Font = CONFIG.Font
-	descLabel.Text = "Comprehensive vulnerability scanner that analyzes anti-cheat systems, remote endpoints, script patterns, environment pollution, GUI injections, memory leaks, and generates detailed security reports.\n\nClick RUN SCAN to begin comprehensive analysis."
+	descLabel.Text = "Advanced vulnerability scanner with 12 detection modules: Anti-cheat/Admin systems, Remote endpoint analysis, Script security, Environment pollution, Metatable integrity, Memory leaks, GUI injection points, Backdoor detection, Obfuscated code, Script misplacement, HttpService security, and DataStore vulnerabilities.\n\nClick RUN SCAN for comprehensive security analysis."
 	descLabel.TextColor3 = CONFIG.Colors.TextDim
 	descLabel.TextSize = 12
 	descLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -1768,9 +1768,25 @@ local function populateScanTab(scanFrame, screenGui)
 			results = results .. '<b><font color="#B45050">🛡️  ANTI-CHEAT SYSTEM DETECTION</font></b>\n\n'
 
 			local antiCheatSystems = {
-				{name = "Adonis Anti-Cheat", check = function()
-					return game:GetService("ReplicatedStorage"):FindFirstChild("HDAdminClient") ~= nil
+				-- Admin Systems
+				{name = "Adonis Admin", check = function()
+					return game:GetService("ReplicatedStorage"):FindFirstChild("HDAdminClient") ~= nil or
+					       game:GetService("ReplicatedStorage"):FindFirstChild("HDAdminRemotes") ~= nil
 				end, severity = "HIGH"},
+				{name = "Basic Admin Essentials (BAE)", check = function()
+					for _, v in ipairs(game:GetDescendants()) do
+						if v.Name == "cmdbar" or v.Name == "BAE_Admin" then return true end
+					end
+					return false
+				end, severity = "HIGH"},
+				{name = "Kohl's Admin", check = function()
+					return game:GetService("ReplicatedStorage"):FindFirstChild("Kohls Admin") ~= nil
+				end, severity = "HIGH"},
+				{name = "CMD-X Admin", check = function()
+					return game:GetService("ReplicatedStorage"):FindFirstChild("CMDX") ~= nil
+				end, severity = "HIGH"},
+
+				-- Anti-Exploit Systems
 				{name = "Unnamed Anti-Cheat", check = function()
 					return game:GetService("ReplicatedStorage"):FindFirstChild("ProtectGui") ~= nil
 				end, severity = "HIGH"},
@@ -1778,16 +1794,44 @@ local function populateScanTab(scanFrame, screenGui)
 					return game:GetService("CoreGui"):FindFirstChild("RobloxGui") ~= nil and
 					       game:GetService("CoreGui").RobloxGui:FindFirstChild("Modules") ~= nil
 				end, severity = "CRITICAL"},
+				{name = "Sentinel AC", check = function()
+					for _, v in ipairs(game:GetDescendants()) do
+						if v.Name:match("Sentinel") or v.Name:match("AntiExploit") then return true end
+					end
+					return false
+				end, severity = "HIGH"},
+				{name = "FE Gun Kit AC", check = function()
+					return game:GetService("ReplicatedStorage"):FindFirstChild("ShootEvent") ~= nil and
+					       game:GetService("ReplicatedStorage"):FindFirstChild("DamageEvent") ~= nil
+				end, severity = "MEDIUM"},
+
+				-- Remote Monitors
 				{name = "Custom Remote Monitor", check = function()
 					local detected = false
 					for _, remote in ipairs(game:GetDescendants()) do
-						if remote:IsA("RemoteEvent") and (remote.Name:match("AntiCheat") or remote.Name:match("Security") or remote.Name:match("Detect")) then
+						if remote:IsA("RemoteEvent") and (remote.Name:match("AntiCheat") or remote.Name:match("Security") or remote.Name:match("Detect") or remote.Name:match("Monitor")) then
 							detected = true
 							break
 						end
 					end
 					return detected
 				end, severity = "MEDIUM"},
+				{name = "RemoteSpy Protection", check = function()
+					for _, v in ipairs(game:GetDescendants()) do
+						if v.Name:match("RemoteSpy") or v.Name:match("LogRemote") then return true end
+					end
+					return false
+				end, severity = "MEDIUM"},
+
+				-- Speed/Movement AC
+				{name = "Movement Detection AC", check = function()
+					for _, remote in ipairs(game:GetDescendants()) do
+						if remote:IsA("RemoteEvent") and (remote.Name:match("Speed") or remote.Name:match("Move") or remote.Name:match("Walk")) then
+							return true
+						end
+					end
+					return false
+				end, severity = "LOW"},
 			}
 
 			for _, ac in ipairs(antiCheatSystems) do
@@ -1824,13 +1868,31 @@ local function populateScanTab(scanFrame, screenGui)
 						reason = "Exposed in ReplicatedStorage"
 					end
 
-					-- Check for dangerous names
-					local dangerousNames = {"Admin", "Kick", "Ban", "Give", "Set", "Update", "Purchase", "Buy", "Teleport", "Kill"}
+					-- Check for dangerous names (expanded list)
+					local dangerousNames = {
+						-- Admin/Moderation
+						"Admin", "Mod", "Kick", "Ban", "Punish", "Warn", "Mute", "UnBan",
+						-- Economy/Items
+						"Give", "Award", "Grant", "Add", "Remove", "Delete", "Set", "Update", "Purchase", "Buy", "Money", "Cash", "Currency", "Coins", "Robux",
+						-- Player Actions
+						"Teleport", "Kill", "Damage", "Health", "Heal", "Respawn", "Reset",
+						-- Data/Stats
+						"Save", "Load", "Data", "Stat", "Level", "XP", "Rank",
+						-- Game State
+						"Execute", "Run", "Eval", "Command", "Fire", "Invoke"
+					}
 					for _, dangerous in ipairs(dangerousNames) do
 						if remote.Name:match(dangerous) then
 							isVulnerable = true
-							reason = reason .. (reason ~= "" and ", " or "") .. "Dangerous name pattern: " .. dangerous
+							reason = reason .. (reason ~= "" and ", " or "") .. "Dangerous pattern: " .. dangerous
+							break
 						end
+					end
+
+					-- Check for unprotected RemoteFunctions (more exploitable)
+					if remote:IsA("RemoteFunction") then
+						isVulnerable = true
+						reason = reason .. (reason ~= "" and ", " or "") .. "RemoteFunction (callback exploitable)"
 					end
 
 					if isVulnerable then
@@ -2015,6 +2077,249 @@ local function populateScanTab(scanFrame, screenGui)
 				results = results .. '<font color="#C8B450">⚠️  Unsanitized user input fields detected</font>\n'
 				totalIssues = totalIssues + 1
 				lowIssues = lowIssues + 1
+			end
+
+			-- 8. BACKDOOR DETECTION
+			results = results .. '\n<b><font color="#B45050">🚪 BACKDOOR DETECTION</font></b>\n\n'
+
+			local backdoorIndicators = 0
+			local suspiciousRequires = {}
+
+			for _, script in ipairs(game:GetDescendants()) do
+				if script:IsA("Script") or script:IsA("LocalScript") or script:IsA("ModuleScript") then
+					local scriptName = script.Name:lower()
+
+					-- Check for suspicious script names
+					local backdoorNames = {"backdoor", "infect", "virus", "inject", "hidden", "hiddengui", "load", "loader"}
+					for _, bd in ipairs(backdoorNames) do
+						if scriptName:match(bd) then
+							backdoorIndicators = backdoorIndicators + 1
+							table.insert(suspiciousRequires, {
+								name = script.Name,
+								path = script:GetFullName(),
+								reason = "Suspicious name: " .. bd
+							})
+							break
+						end
+					end
+
+					-- Check for suspicious require() patterns
+					if getsenv and script:IsA("LocalScript") then
+						pcall(function()
+							local env = getsenv(script)
+							if env and env.require then
+								-- Script uses require, potential backdoor vector
+								if scriptName:match("free") or scriptName:match("model") or scriptName:match("admin") then
+									backdoorIndicators = backdoorIndicators + 1
+									table.insert(suspiciousRequires, {
+										name = script.Name,
+										path = script:GetFullName(),
+										reason = "Uses require() with suspicious name"
+									})
+								end
+							end
+						end)
+					end
+
+					-- Check for MainModule pattern (common backdoor)
+					if script:IsA("ModuleScript") and script.Name == "MainModule" then
+						backdoorIndicators = backdoorIndicators + 1
+						table.insert(suspiciousRequires, {
+							name = script.Name,
+							path = script:GetFullName(),
+							reason = "MainModule pattern (common backdoor)"
+						})
+					end
+				end
+			end
+
+			results = results .. string.format('<b>Backdoor Indicators:</b> %d\n\n', backdoorIndicators)
+			for i, suspect in ipairs(suspiciousRequires) do
+				if i <= 10 then
+					results = results .. string.format('<font color="#B45050">⚠️  %s</font>\n   ↳ %s\n   ↳ Path: %s\n',
+						suspect.name, suspect.reason, suspect.path)
+					totalIssues = totalIssues + 1
+					highIssues = highIssues + 1
+				end
+			end
+			if #suspiciousRequires > 10 then
+				results = results .. string.format('... and %d more\n', #suspiciousRequires - 10)
+			end
+			if backdoorIndicators == 0 then
+				results = results .. '<font color="#50B464">✓ No obvious backdoors detected</font>\n'
+			end
+
+			-- 9. OBFUSCATED CODE DETECTION
+			results = results .. '\n<b><font color="#9664C8">🔒 OBFUSCATED CODE DETECTION</font></b>\n\n'
+
+			local obfuscatedScripts = 0
+			local obfuscatedList = {}
+
+			for _, script in ipairs(game:GetDescendants()) do
+				if script:IsA("Script") or script:IsA("LocalScript") or script:IsA("ModuleScript") then
+					local isObfuscated = false
+					local obfType = ""
+
+					-- Check script name for obfuscation patterns
+					local name = script.Name
+					if name:match("^[a-f0-9]+$") or -- Hex names
+					   name:match("^[IL1O0]+$") or -- Confusing characters
+					   name:len() > 40 or -- Very long names
+					   name:match("_+") and name:len() > 20 then -- Many underscores
+						isObfuscated = true
+						obfType = "Suspicious name pattern"
+					end
+
+					-- Check for common obfuscator signatures
+					if decompile then
+						pcall(function()
+							local source = decompile(script)
+							if source then
+								-- Luraph signature
+								if source:match("luraph") or source:match("LPH_") then
+									isObfuscated = true
+									obfType = "Luraph obfuscation detected"
+								end
+								-- IronBrew signature
+								if source:match("IronBrew") or source:match("PSU_") then
+									isObfuscated = true
+									obfType = "IronBrew obfuscation detected"
+								end
+								-- Synapse Xen signature
+								if source:match("Xen_") or source:match("luaU_") then
+									isObfuscated = true
+									obfType = "Synapse Xen detected"
+								end
+								-- Generic obfuscation indicators
+								if source:match("getfenv") and source:match("setfenv") and source:len() > 5000 then
+									isObfuscated = true
+									obfType = "Heavy getfenv/setfenv usage (likely obfuscated)"
+								end
+							end
+						end)
+					end
+
+					if isObfuscated then
+						obfuscatedScripts = obfuscatedScripts + 1
+						table.insert(obfuscatedList, {
+							name = script.Name,
+							path = script:GetFullName(),
+							type = obfType
+						})
+					end
+				end
+			end
+
+			results = results .. string.format('<b>Obfuscated Scripts:</b> %d\n\n', obfuscatedScripts)
+			for i, obf in ipairs(obfuscatedList) do
+				if i <= 8 then
+					results = results .. string.format('<font color="#9664C8">🔒 %s</font>\n   ↳ %s\n   ↳ Path: %s\n',
+						obf.name, obf.type, obf.path)
+					totalIssues = totalIssues + 1
+					mediumIssues = mediumIssues + 1
+				end
+			end
+			if #obfuscatedList > 8 then
+				results = results .. string.format('... and %d more\n', #obfuscatedList - 8)
+			end
+			if obfuscatedScripts == 0 then
+				results = results .. '<font color="#50B464">✓ No obfuscated scripts detected</font>\n'
+			end
+
+			-- 10. SERVER SCRIPT MISPLACEMENT
+			results = results .. '\n<b><font color="#C8B450">📂 SERVER SCRIPT MISPLACEMENT CHECK</font></b>\n\n'
+
+			local misplacedScripts = 0
+			for _, script in ipairs(game:GetDescendants()) do
+				if script:IsA("Script") and not script:IsDescendantOf(game:GetService("ServerScriptService")) and
+				   not script:IsDescendantOf(game:GetService("ServerStorage")) then
+					misplacedScripts = misplacedScripts + 1
+					if misplacedScripts <= 5 then
+						results = results .. string.format('<font color="#C8B450">⚠️  Server Script in client location:</font>\n   ↳ %s\n',
+							script:GetFullName())
+					end
+				end
+			end
+
+			if misplacedScripts > 5 then
+				results = results .. string.format('... and %d more misplaced scripts\n', misplacedScripts - 5)
+			end
+
+			if misplacedScripts > 0 then
+				results = results .. string.format('\n<b>Total Misplaced:</b> %d\n', misplacedScripts)
+				results = results .. '<font color="#C8B450">⚠️  Server scripts should be in ServerScriptService</font>\n'
+				totalIssues = totalIssues + 1
+				mediumIssues = mediumIssues + 1
+			else
+				results = results .. '<font color="#50B464">✓ All server scripts properly placed</font>\n'
+			end
+
+			-- 11. HTTPSERVICE SECURITY
+			results = results .. '\n<b><font color="#5AA3E0">🌐 HTTPSERVICE SECURITY SCAN</font></b>\n\n'
+
+			local httpEnabled = pcall(function()
+				return game:GetService("HttpService"):GetAsync("https://www.google.com")
+			end)
+
+			if httpEnabled then
+				results = results .. '<font color="#C8B450">⚠️  HttpService is ENABLED</font>\n'
+				results = results .. '   ↳ External HTTP requests allowed\n'
+				results = results .. '   ↳ Potential data exfiltration risk\n'
+				totalIssues = totalIssues + 1
+				mediumIssues = mediumIssues + 1
+			else
+				results = results .. '<font color="#50B464">✓ HttpService disabled or restricted</font>\n'
+			end
+
+			-- Check for suspicious URLs in scripts
+			local suspiciousUrls = 0
+			if decompile then
+				for _, script in ipairs(game:GetDescendants()) do
+					if (script:IsA("Script") or script:IsA("LocalScript")) and suspiciousUrls < 5 then
+						pcall(function()
+							local source = decompile(script)
+							if source and (source:match("http://") or source:match("https://")) then
+								-- Check for non-Roblox URLs
+								if not source:match("roblox%.com") and not source:match("rbxcdn%.com") then
+									suspiciousUrls = suspiciousUrls + 1
+									results = results .. string.format('<font color="#B45050">⚠️  External URL found in:</font> %s\n',
+										script:GetFullName())
+								end
+							end
+						end)
+					end
+				end
+			end
+
+			if suspiciousUrls > 0 then
+				totalIssues = totalIssues + 1
+				highIssues = highIssues + 1
+			end
+
+			-- 12. DATASTORE VULNERABILITIES
+			results = results .. '\n<b><font color="#C8B450">💾 DATASTORE SECURITY</font></b>\n\n'
+
+			local datastoreRemotes = 0
+			for _, remote in ipairs(game:GetDescendants()) do
+				if remote:IsA("RemoteEvent") or remote:IsA("RemoteFunction") then
+					if remote.Name:match("Data") or remote.Name:match("Save") or remote.Name:match("Load") or
+					   remote.Name:match("Store") or remote.Name:match("Database") then
+						datastoreRemotes = datastoreRemotes + 1
+						if datastoreRemotes <= 5 then
+							results = results .. string.format('<font color="#C8B450">⚠️  DataStore-related remote:</font> %s\n',
+								remote:GetFullName())
+						end
+					end
+				end
+			end
+
+			if datastoreRemotes > 0 then
+				results = results .. string.format('\n<b>DataStore Remotes Found:</b> %d\n', datastoreRemotes)
+				results = results .. '<font color="#C8B450">⚠️  Verify server-side validation for all data operations</font>\n'
+				totalIssues = totalIssues + 1
+				mediumIssues = mediumIssues + 1
+			else
+				results = results .. '<font color="#50B464">✓ No direct DataStore remotes exposed</font>\n'
 			end
 
 			-- SUMMARY REPORT
