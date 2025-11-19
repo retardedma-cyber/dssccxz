@@ -1714,12 +1714,213 @@ local function populateScanTab(scanFrame, screenGui)
 	descLabel.Size = UDim2.new(1, -40, 0, 60)
 	descLabel.BackgroundTransparency = 1
 	descLabel.Font = CONFIG.Font
-	descLabel.Text = "Advanced vulnerability scanner with 12 detection modules: Anti-cheat/Admin systems, Remote endpoint analysis, Script security, Environment pollution, Metatable integrity, Memory leaks, GUI injection points, Backdoor detection, Obfuscated code, Script misplacement, HttpService security, and DataStore vulnerabilities.\n\nClick RUN SCAN for comprehensive security analysis."
+	descLabel.Text = "Advanced vulnerability scanner with 12 detection modules. Select modules below and click RUN SCAN for security analysis."
 	descLabel.TextColor3 = CONFIG.Colors.TextDim
 	descLabel.TextSize = 12
 	descLabel.TextXAlignment = Enum.TextXAlignment.Left
 	descLabel.TextYAlignment = Enum.TextYAlignment.Top
 	descLabel.TextWrapped = true
+
+	-- Scan Modules Selection
+	local modulesCard = Instance.new("Frame")
+	modulesCard.Name = "ModulesCard"
+	modulesCard.Parent = scanFrame
+	modulesCard.Size = UDim2.new(1, -10, 0, 0)
+	modulesCard.BackgroundColor3 = CONFIG.Colors.TopBar
+	modulesCard.BorderSizePixel = 0
+	modulesCard.LayoutOrder = 2
+	modulesCard.AutomaticSize = Enum.AutomaticSize.Y
+	createUICorner(8).Parent = modulesCard
+
+	local modulesLayout = Instance.new("UIListLayout")
+	modulesLayout.Parent = modulesCard
+	modulesLayout.Padding = UDim.new(0, 2)
+
+	local modulesPadding = Instance.new("UIPadding")
+	modulesPadding.Parent = modulesCard
+	modulesPadding.PaddingLeft = UDim.new(0, 15)
+	modulesPadding.PaddingRight = UDim.new(0, 15)
+	modulesPadding.PaddingTop = UDim.new(0, 10)
+	modulesPadding.PaddingBottom = UDim.new(0, 10)
+
+	local modulesTitle = Instance.new("TextLabel")
+	modulesTitle.Parent = modulesCard
+	modulesTitle.Size = UDim2.new(1, 0, 0, 25)
+	modulesTitle.BackgroundTransparency = 1
+	modulesTitle.Font = CONFIG.FontBold
+	modulesTitle.Text = "📋 SELECT SCAN MODULES"
+	modulesTitle.TextColor3 = CONFIG.Colors.Text
+	modulesTitle.TextSize = 14
+	modulesTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+	-- Define scan modules with their settings
+	local scanModules = {
+		{id = "anticheat", name = "🛡️  Anti-Cheat Detection", enabled = true},
+		{id = "remotes", name = "📡 Remote Endpoint Analysis", enabled = true},
+		{id = "scripts", name = "📜 Script Security Analysis", enabled = true},
+		{id = "environment", name = "🌍 Environment Pollution", enabled = true},
+		{id = "metatable", name = "🔬 Metatable Integrity", enabled = true},
+		{id = "memory", name = "🗑️  Memory Leak Detection", enabled = true},
+		{id = "gui", name = "🎨 GUI Injection Points", enabled = true},
+		{id = "backdoor", name = "🚪 Backdoor Detection", enabled = true},
+		{id = "obfuscation", name = "🔒 Obfuscated Code", enabled = true},
+		{id = "misplacement", name = "📂 Script Misplacement", enabled = true},
+		{id = "http", name = "🌐 HttpService Security", enabled = true},
+		{id = "datastore", name = "💾 DataStore Security", enabled = true},
+	}
+
+	-- Create checkboxes for each module
+	local moduleCheckboxes = {}
+	for i, module in ipairs(scanModules) do
+		local checkFrame = Instance.new("Frame")
+		checkFrame.Name = "Module_" .. module.id
+		checkFrame.Parent = modulesCard
+		checkFrame.Size = UDim2.new(0.48, 0, 0, 25)
+		checkFrame.BackgroundTransparency = 1
+		checkFrame.LayoutOrder = i + 1
+
+		local checkbox = Instance.new("TextButton")
+		checkbox.Name = "Checkbox"
+		checkbox.Parent = checkFrame
+		checkbox.Size = UDim2.new(0, 20, 0, 20)
+		checkbox.Position = UDim2.new(0, 0, 0, 2)
+		checkbox.BackgroundColor3 = CONFIG.Colors.Button
+		checkbox.BorderSizePixel = 1
+		checkbox.BorderColor3 = CONFIG.Colors.Border
+		checkbox.Text = module.enabled and "✓" or ""
+		checkbox.TextColor3 = CONFIG.Colors.AccentGreen
+		checkbox.TextSize = 14
+		checkbox.Font = CONFIG.FontBold
+		createUICorner(3).Parent = checkbox
+
+		local label = Instance.new("TextLabel")
+		label.Parent = checkFrame
+		label.Position = UDim2.new(0, 28, 0, 0)
+		label.Size = UDim2.new(1, -28, 1, 0)
+		label.BackgroundTransparency = 1
+		label.Font = CONFIG.Font
+		label.Text = module.name
+		label.TextColor3 = CONFIG.Colors.Text
+		label.TextSize = 12
+		label.TextXAlignment = Enum.TextXAlignment.Left
+
+		moduleCheckboxes[module.id] = {enabled = module.enabled, checkbox = checkbox}
+
+		checkbox.MouseButton1Click:Connect(function()
+			moduleCheckboxes[module.id].enabled = not moduleCheckboxes[module.id].enabled
+			checkbox.Text = moduleCheckboxes[module.id].enabled and "✓" or ""
+			checkbox.BackgroundColor3 = moduleCheckboxes[module.id].enabled and CONFIG.Colors.AccentGreen or CONFIG.Colors.Button
+		end)
+
+		-- Initialize color
+		checkbox.BackgroundColor3 = module.enabled and CONFIG.Colors.AccentGreen or CONFIG.Colors.Button
+	end
+
+	-- Select All / Deselect All buttons
+	local selectAllFrame = Instance.new("Frame")
+	selectAllFrame.Name = "SelectAllFrame"
+	selectAllFrame.Parent = modulesCard
+	selectAllFrame.Size = UDim2.new(1, 0, 0, 30)
+	selectAllFrame.BackgroundTransparency = 1
+	selectAllFrame.LayoutOrder = 100
+
+	local selectAllBtn = Instance.new("TextButton")
+	selectAllBtn.Parent = selectAllFrame
+	selectAllBtn.Size = UDim2.new(0.48, -5, 0, 28)
+	selectAllBtn.Position = UDim2.new(0, 0, 0, 0)
+	selectAllBtn.BackgroundColor3 = CONFIG.Colors.AccentBlue
+	selectAllBtn.BorderSizePixel = 0
+	selectAllBtn.Font = CONFIG.FontBold
+	selectAllBtn.Text = "✓ SELECT ALL"
+	selectAllBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	selectAllBtn.TextSize = 12
+	createUICorner(4).Parent = selectAllBtn
+
+	local deselectAllBtn = Instance.new("TextButton")
+	deselectAllBtn.Parent = selectAllFrame
+	deselectAllBtn.Size = UDim2.new(0.48, -5, 0, 28)
+	deselectAllBtn.Position = UDim2.new(0.52, 0, 0, 0)
+	deselectAllBtn.BackgroundColor3 = CONFIG.Colors.AccentRed
+	deselectAllBtn.BorderSizePixel = 0
+	deselectAllBtn.Font = CONFIG.FontBold
+	deselectAllBtn.Text = "✗ DESELECT ALL"
+	deselectAllBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	deselectAllBtn.TextSize = 12
+	createUICorner(4).Parent = deselectAllBtn
+
+	selectAllBtn.MouseButton1Click:Connect(function()
+		for id, data in pairs(moduleCheckboxes) do
+			data.enabled = true
+			data.checkbox.Text = "✓"
+			data.checkbox.BackgroundColor3 = CONFIG.Colors.AccentGreen
+		end
+	end)
+
+	deselectAllBtn.MouseButton1Click:Connect(function()
+		for id, data in pairs(moduleCheckboxes) do
+			data.enabled = false
+			data.checkbox.Text = ""
+			data.checkbox.BackgroundColor3 = CONFIG.Colors.Button
+		end
+	end)
+
+	-- Progress Card
+	local progressCard = Instance.new("Frame")
+	progressCard.Name = "ProgressCard"
+	progressCard.Parent = scanFrame
+	progressCard.Size = UDim2.new(1, -10, 0, 100)
+	progressCard.BackgroundColor3 = CONFIG.Colors.TopBar
+	progressCard.BorderSizePixel = 0
+	progressCard.LayoutOrder = 3
+	progressCard.Visible = false
+	createUICorner(8).Parent = progressCard
+
+	local progressLabel = Instance.new("TextLabel")
+	progressLabel.Parent = progressCard
+	progressLabel.Position = UDim2.new(0, 15, 0, 10)
+	progressLabel.Size = UDim2.new(1, -30, 0, 25)
+	progressLabel.BackgroundTransparency = 1
+	progressLabel.Font = CONFIG.FontBold
+	progressLabel.Text = "⏳ INITIALIZING SCAN..."
+	progressLabel.TextColor3 = CONFIG.Colors.Text
+	progressLabel.TextSize = 14
+	progressLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+	local progressBarBg = Instance.new("Frame")
+	progressBarBg.Parent = progressCard
+	progressBarBg.Position = UDim2.new(0, 15, 0, 45)
+	progressBarBg.Size = UDim2.new(1, -30, 0, 20)
+	progressBarBg.BackgroundColor3 = CONFIG.Colors.Button
+	progressBarBg.BorderSizePixel = 0
+	createUICorner(10).Parent = progressBarBg
+
+	local progressBarFill = Instance.new("Frame")
+	progressBarFill.Parent = progressBarBg
+	progressBarFill.Size = UDim2.new(0, 0, 1, 0)
+	progressBarFill.BackgroundColor3 = CONFIG.Colors.AccentGreen
+	progressBarFill.BorderSizePixel = 0
+	createUICorner(10).Parent = progressBarFill
+
+	local progressPercent = Instance.new("TextLabel")
+	progressPercent.Parent = progressBarBg
+	progressPercent.Size = UDim2.new(1, 0, 1, 0)
+	progressPercent.BackgroundTransparency = 1
+	progressPercent.Font = CONFIG.FontBold
+	progressPercent.Text = "0%"
+	progressPercent.TextColor3 = CONFIG.Colors.Text
+	progressPercent.TextSize = 12
+	progressPercent.ZIndex = 2
+
+	local progressDetail = Instance.new("TextLabel")
+	progressDetail.Parent = progressCard
+	progressDetail.Position = UDim2.new(0, 15, 0, 70)
+	progressDetail.Size = UDim2.new(1, -30, 0, 20)
+	progressDetail.BackgroundTransparency = 1
+	progressDetail.Font = CONFIG.Font
+	progressDetail.Text = "Preparing to scan..."
+	progressDetail.TextColor3 = CONFIG.Colors.TextDim
+	progressDetail.TextSize = 11
+	progressDetail.TextXAlignment = Enum.TextXAlignment.Left
 
 	-- Scan Button
 	local scanButton = Instance.new("TextButton")
@@ -1733,7 +1934,7 @@ local function populateScanTab(scanFrame, screenGui)
 	scanButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 	scanButton.TextSize = 18
 	scanButton.AutoButtonColor = false
-	scanButton.LayoutOrder = 2
+	scanButton.LayoutOrder = 4
 	createUICorner(8).Parent = scanButton
 
 	scanButton.MouseEnter:Connect(function()
@@ -1745,15 +1946,63 @@ local function populateScanTab(scanFrame, screenGui)
 	end)
 
 	local scanInProgress = false
+
+	local function updateProgress(step, total, label, detail)
+		local percent = math.floor((step / total) * 100)
+		progressPercent.Text = percent .. "%"
+		progressBarFill:TweenSize(UDim2.new(percent / 100, 0, 1, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.3, true)
+		progressLabel.Text = label
+		progressDetail.Text = detail
+	end
+
 	scanButton.MouseButton1Click:Connect(function()
 		-- Prevent multiple scans at once
 		if scanInProgress then return end
 
+		-- Check if at least one module is selected
+		local anyEnabled = false
+		for _, data in pairs(moduleCheckboxes) do
+			if data.enabled then
+				anyEnabled = true
+				break
+			end
+		end
+
+		if not anyEnabled then
+			progressLabel.Text = "⚠️  No modules selected!"
+			progressDetail.Text = "Please select at least one scan module"
+			progressCard.Visible = true
+			task.wait(2)
+			progressCard.Visible = false
+			return
+		end
+
 		scanInProgress = true
 		scanButton.Text = "⏳ SCANNING..."
 		scanButton.BackgroundColor3 = CONFIG.Colors.AccentYellow
+		progressCard.Visible = true
+		modulesCard.Visible = false
 
 		task.spawn(function()
+			updateProgress(0, 13, "⏳ INITIALIZING SCAN...", "Gathering game data...")
+			task.wait(0.1)
+
+			-- Collect all descendants ONCE for performance
+			local allDescendants = game:GetDescendants()
+			local remotes = {}
+			local scripts = {}
+
+			for _, obj in ipairs(allDescendants) do
+				if obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction") then
+					table.insert(remotes, obj)
+				elseif obj:IsA("Script") or obj:IsA("LocalScript") or obj:IsA("ModuleScript") then
+					table.insert(scripts, obj)
+				end
+			end
+
+			updateProgress(1, 13, "✓ DATA COLLECTED", string.format("Found %d objects, %d remotes, %d scripts", #allDescendants, #remotes, #scripts))
+			task.wait(0.3)
+
 			local results = "<b>🔍 COMPREHENSIVE VULNERABILITY SCAN REPORT</b>\n\n"
 			results = results .. '<font color="#C8B450">Scan started: ' .. os.date("%Y-%m-%d %H:%M:%S") .. '</font>\n'
 			results = results .. '<font color="#5AA3E0">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</font>\n\n'
@@ -1764,17 +2013,21 @@ local function populateScanTab(scanFrame, screenGui)
 			local mediumIssues = 0
 			local lowIssues = 0
 
-			-- 1. ANTI-CHEAT DETECTION
-			results = results .. '<b><font color="#B45050">🛡️  ANTI-CHEAT SYSTEM DETECTION</font></b>\n\n'
+			local currentStep = 2
 
-			local antiCheatSystems = {
+			-- 1. ANTI-CHEAT DETECTION
+			if moduleCheckboxes["anticheat"].enabled then
+				updateProgress(currentStep, 13, "🛡️  SCANNING ANTI-CHEAT...", "Detecting admin and anti-exploit systems...")
+				results = results .. '<b><font color="#B45050">🛡️  ANTI-CHEAT SYSTEM DETECTION</font></b>\n\n'
+
+				local antiCheatSystems = {
 				-- Admin Systems
 				{name = "Adonis Admin", check = function()
 					return game:GetService("ReplicatedStorage"):FindFirstChild("HDAdminClient") ~= nil or
 					       game:GetService("ReplicatedStorage"):FindFirstChild("HDAdminRemotes") ~= nil
 				end, severity = "HIGH"},
 				{name = "Basic Admin Essentials (BAE)", check = function()
-					for _, v in ipairs(game:GetDescendants()) do
+					for _, v in ipairs(allDescendants) do
 						if v.Name == "cmdbar" or v.Name == "BAE_Admin" then return true end
 					end
 					return false
@@ -1795,7 +2048,7 @@ local function populateScanTab(scanFrame, screenGui)
 					       game:GetService("CoreGui").RobloxGui:FindFirstChild("Modules") ~= nil
 				end, severity = "CRITICAL"},
 				{name = "Sentinel AC", check = function()
-					for _, v in ipairs(game:GetDescendants()) do
+					for _, v in ipairs(allDescendants) do
 						if v.Name:match("Sentinel") or v.Name:match("AntiExploit") then return true end
 					end
 					return false
@@ -1807,17 +2060,15 @@ local function populateScanTab(scanFrame, screenGui)
 
 				-- Remote Monitors
 				{name = "Custom Remote Monitor", check = function()
-					local detected = false
-					for _, remote in ipairs(game:GetDescendants()) do
+					for _, remote in ipairs(remotes) do
 						if remote:IsA("RemoteEvent") and (remote.Name:match("AntiCheat") or remote.Name:match("Security") or remote.Name:match("Detect") or remote.Name:match("Monitor")) then
-							detected = true
-							break
+							return true
 						end
 					end
-					return detected
+					return false
 				end, severity = "MEDIUM"},
 				{name = "RemoteSpy Protection", check = function()
-					for _, v in ipairs(game:GetDescendants()) do
+					for _, v in ipairs(allDescendants) do
 						if v.Name:match("RemoteSpy") or v.Name:match("LogRemote") then return true end
 					end
 					return false
@@ -1825,7 +2076,7 @@ local function populateScanTab(scanFrame, screenGui)
 
 				-- Speed/Movement AC
 				{name = "Movement Detection AC", check = function()
-					for _, remote in ipairs(game:GetDescendants()) do
+					for _, remote in ipairs(remotes) do
 						if remote:IsA("RemoteEvent") and (remote.Name:match("Speed") or remote.Name:match("Move") or remote.Name:match("Walk")) then
 							return true
 						end
@@ -1834,29 +2085,32 @@ local function populateScanTab(scanFrame, screenGui)
 				end, severity = "LOW"},
 			}
 
-			for _, ac in ipairs(antiCheatSystems) do
-				local success, detected = pcall(ac.check)
-				if success and detected then
-					results = results .. string.format('<font color="#B45050">⚠️  DETECTED:</font> %s (<font color="#B45050">%s</font>)\n', ac.name, ac.severity)
-					totalIssues = totalIssues + 1
-					if ac.severity == "CRITICAL" then criticalIssues = criticalIssues + 1
-					elseif ac.severity == "HIGH" then highIssues = highIssues + 1
-					elseif ac.severity == "MEDIUM" then mediumIssues = mediumIssues + 1
-					else lowIssues = lowIssues + 1 end
-				else
-					results = results .. string.format('<font color="#50B464">✓ Not detected:</font> %s\n', ac.name)
+				for _, ac in ipairs(antiCheatSystems) do
+					local success, detected = pcall(ac.check)
+					if success and detected then
+						results = results .. string.format('<font color="#B45050">⚠️  DETECTED:</font> %s (<font color="#B45050">%s</font>)\n', ac.name, ac.severity)
+						totalIssues = totalIssues + 1
+						if ac.severity == "CRITICAL" then criticalIssues = criticalIssues + 1
+						elseif ac.severity == "HIGH" then highIssues = highIssues + 1
+						elseif ac.severity == "MEDIUM" then mediumIssues = mediumIssues + 1
+						else lowIssues = lowIssues + 1 end
+					else
+						results = results .. string.format('<font color="#50B464">✓ Not detected:</font> %s\n', ac.name)
+					end
 				end
+				task.wait(0.1)
+				currentStep = currentStep + 1
 			end
 
 			-- 2. REMOTE ENDPOINT ANALYSIS
-			results = results .. '\n<b><font color="#5AA3E0">📡 REMOTE ENDPOINT VULNERABILITY ANALYSIS</font></b>\n\n'
+			if moduleCheckboxes["remotes"].enabled then
+				updateProgress(currentStep, 13, "📡 SCANNING REMOTES...", "Analyzing remote endpoints for vulnerabilities...")
+				results = results .. '\n<b><font color="#5AA3E0">📡 REMOTE ENDPOINT VULNERABILITY ANALYSIS</font></b>\n\n'
 
-			local vulnerableRemotes = {}
-			local totalRemotes = 0
+				local vulnerableRemotes = {}
+				local totalRemotes = #remotes
 
-			for _, remote in ipairs(game:GetDescendants()) do
-				if remote:IsA("RemoteEvent") or remote:IsA("RemoteFunction") then
-					totalRemotes = totalRemotes + 1
+				for _, remote in ipairs(remotes) do
 
 					-- Check for vulnerable patterns
 					local isVulnerable = false
@@ -1917,21 +2171,23 @@ local function populateScanTab(scanFrame, screenGui)
 					else highIssues = highIssues + 1 end
 				end
 			end
-			if #vulnerableRemotes > 15 then
-				results = results .. string.format('... and %d more vulnerable remotes\n', #vulnerableRemotes - 15)
+				if #vulnerableRemotes > 15 then
+					results = results .. string.format('... and %d more vulnerable remotes\n', #vulnerableRemotes - 15)
+				end
+				task.wait(0.1)
+				currentStep = currentStep + 1
 			end
 
 			-- 3. SCRIPT SECURITY ANALYSIS
-			results = results .. '\n<b><font color="#9664C8">📜 SCRIPT SECURITY ANALYSIS</font></b>\n\n'
+			if moduleCheckboxes["scripts"].enabled then
+				updateProgress(currentStep, 13, "📜 SCANNING SCRIPTS...", "Analyzing script security...")
+				results = results .. '\n<b><font color="#9664C8">📜 SCRIPT SECURITY ANALYSIS</font></b>\n\n'
 
-			local suspiciousScripts = 0
-			local totalScripts = 0
-			local scriptIssues = {}
+				local suspiciousScripts = 0
+				local totalScripts = #scripts
+				local scriptIssues = {}
 
-			for _, script in ipairs(game:GetDescendants()) do
-				if script:IsA("LocalScript") or script:IsA("Script") or script:IsA("ModuleScript") then
-					totalScripts = totalScripts + 1
-
+				for _, script in ipairs(scripts) do
 					-- Check for suspicious patterns
 					pcall(function()
 						if getsenv and script:IsA("LocalScript") then
@@ -1959,17 +2215,22 @@ local function populateScanTab(scanFrame, screenGui)
 			results = results .. string.format('<b>Scripts Analyzed:</b> %d\n', totalScripts)
 			results = results .. string.format('<b><font color="#C8B450">Suspicious Scripts:</font></b> %d\n\n', suspiciousScripts)
 
-			for i, issue in ipairs(scriptIssues) do
-				if i <= 10 then
-					results = results .. string.format('<font color="#C8B450">⚠️  [%s]</font> %s\n   ↳ %s\n',
-						issue.severity, issue.script, issue.issue)
-					totalIssues = totalIssues + 1
-					mediumIssues = mediumIssues + 1
+				for i, issue in ipairs(scriptIssues) do
+					if i <= 10 then
+						results = results .. string.format('<font color="#C8B450">⚠️  [%s]</font> %s\n   ↳ %s\n',
+							issue.severity, issue.script, issue.issue)
+						totalIssues = totalIssues + 1
+						mediumIssues = mediumIssues + 1
+					end
 				end
+				task.wait(0.1)
+				currentStep = currentStep + 1
 			end
 
 			-- 4. ENVIRONMENT POLLUTION CHECK
-			results = results .. '\n<b><font color="#C8B450">🌍 ENVIRONMENT POLLUTION ANALYSIS</font></b>\n\n'
+			if moduleCheckboxes["environment"].enabled then
+				updateProgress(currentStep, 13, "🌍 CHECKING ENVIRONMENT...", "Detecting executor function pollution...")
+				results = results .. '\n<b><font color="#C8B450">🌍 ENVIRONMENT POLLUTION ANALYSIS</font></b>\n\n'
 
 			local executorFunctions = {
 				"getgenv", "getrenv", "getsenv", "getrawmetatable", "setrawmetatable",
@@ -1989,15 +2250,20 @@ local function populateScanTab(scanFrame, screenGui)
 				pollutionLevel == "HIGH" and "#B45050" or pollutionLevel == "MEDIUM" and "#C8B450" or "#50B464",
 				pollutionLevel, detectedPollution, #executorFunctions)
 
-			if detectedPollution > 0 then
-				results = results .. '<font color="#C8B450">⚠️  Executor functions detected in global environment</font>\n'
-				totalIssues = totalIssues + 1
-				if pollutionLevel == "HIGH" then highIssues = highIssues + 1
-				else mediumIssues = mediumIssues + 1 end
+				if detectedPollution > 0 then
+					results = results .. '<font color="#C8B450">⚠️  Executor functions detected in global environment</font>\n'
+					totalIssues = totalIssues + 1
+					if pollutionLevel == "HIGH" then highIssues = highIssues + 1
+					else mediumIssues = mediumIssues + 1 end
+				end
+				task.wait(0.1)
+				currentStep = currentStep + 1
 			end
 
 			-- 5. METATABLE INTEGRITY CHECK
-			results = results .. '\n<b><font color="#9664C8">🔬 METATABLE INTEGRITY CHECK</font></b>\n\n'
+			if moduleCheckboxes["metatable"].enabled then
+				updateProgress(currentStep, 13, "🔬 CHECKING METATABLES...", "Analyzing metatable integrity...")
+				results = results .. '\n<b><font color="#9664C8">🔬 METATABLE INTEGRITY CHECK</font></b>\n\n'
 
 			if getrawmetatable then
 				local metatableHooked = false
@@ -2019,12 +2285,17 @@ local function populateScanTab(scanFrame, screenGui)
 				else
 					results = results .. '<font color="#50B464">✓ Metatables appear clean</font>\n'
 				end
-			else
-				results = results .. '<font color="#C8B450">⚠️  Cannot check (getrawmetatable unavailable)</font>\n'
+				else
+					results = results .. '<font color="#C8B450">⚠️  Cannot check (getrawmetatable unavailable)</font>\n'
+				end
+				task.wait(0.1)
+				currentStep = currentStep + 1
 			end
 
 			-- 6. MEMORY LEAK DETECTION
-			results = results .. '\n<b><font color="#50B464">🗑️  MEMORY LEAK DETECTION</font></b>\n\n'
+			if moduleCheckboxes["memory"].enabled then
+				updateProgress(currentStep, 13, "🗑️  SCANNING MEMORY...", "Detecting memory leaks...")
+				results = results .. '\n<b><font color="#50B464">🗑️  MEMORY LEAK DETECTION</font></b>\n\n'
 
 			if getgc then
 				local gcObjects = getgc(true)
@@ -2050,12 +2321,17 @@ local function populateScanTab(scanFrame, screenGui)
 				else
 					results = results .. '<font color="#50B464">✓ Memory appears healthy</font>\n'
 				end
-			else
-				results = results .. '<font color="#C8B450">⚠️  Cannot scan (getgc unavailable)</font>\n'
+				else
+					results = results .. '<font color="#C8B450">⚠️  Cannot scan (getgc unavailable)</font>\n'
+				end
+				task.wait(0.1)
+				currentStep = currentStep + 1
 			end
 
 			-- 7. GUI INJECTION POINTS
-			results = results .. '\n<b><font color="#5AA3E0">🎨 GUI INJECTION VULNERABILITY SCAN</font></b>\n\n'
+			if moduleCheckboxes["gui"].enabled then
+				updateProgress(currentStep, 13, "🎨 SCANNING GUI...", "Analyzing GUI injection points...")
+				results = results .. '\n<b><font color="#5AA3E0">🎨 GUI INJECTION VULNERABILITY SCAN</font></b>\n\n'
 
 			local textBoxes = 0
 			local unsanitizedInputs = 0
@@ -2073,20 +2349,24 @@ local function populateScanTab(scanFrame, screenGui)
 			results = results .. string.format('<b>TextBoxes Found:</b> %d\n', textBoxes)
 			results = results .. string.format('<b>Potentially Exploitable:</b> %d\n', unsanitizedInputs)
 
-			if unsanitizedInputs > 0 then
-				results = results .. '<font color="#C8B450">⚠️  Unsanitized user input fields detected</font>\n'
-				totalIssues = totalIssues + 1
-				lowIssues = lowIssues + 1
+				if unsanitizedInputs > 0 then
+					results = results .. '<font color="#C8B450">⚠️  Unsanitized user input fields detected</font>\n'
+					totalIssues = totalIssues + 1
+					lowIssues = lowIssues + 1
+				end
+				task.wait(0.1)
+				currentStep = currentStep + 1
 			end
 
 			-- 8. BACKDOOR DETECTION
-			results = results .. '\n<b><font color="#B45050">🚪 BACKDOOR DETECTION</font></b>\n\n'
+			if moduleCheckboxes["backdoor"].enabled then
+				updateProgress(currentStep, 13, "🚪 SCANNING BACKDOORS...", "Detecting suspicious scripts...")
+				results = results .. '\n<b><font color="#B45050">🚪 BACKDOOR DETECTION</font></b>\n\n'
 
-			local backdoorIndicators = 0
-			local suspiciousRequires = {}
+				local backdoorIndicators = 0
+				local suspiciousRequires = {}
 
-			for _, script in ipairs(game:GetDescendants()) do
-				if script:IsA("Script") or script:IsA("LocalScript") or script:IsA("ModuleScript") then
+				for _, script in ipairs(scripts) do
 					local scriptName = script.Name:lower()
 
 					-- Check for suspicious script names
@@ -2145,18 +2425,22 @@ local function populateScanTab(scanFrame, screenGui)
 			if #suspiciousRequires > 10 then
 				results = results .. string.format('... and %d more\n', #suspiciousRequires - 10)
 			end
-			if backdoorIndicators == 0 then
-				results = results .. '<font color="#50B464">✓ No obvious backdoors detected</font>\n'
+				if backdoorIndicators == 0 then
+					results = results .. '<font color="#50B464">✓ No obvious backdoors detected</font>\n'
+				end
+				task.wait(0.1)
+				currentStep = currentStep + 1
 			end
 
 			-- 9. OBFUSCATED CODE DETECTION
-			results = results .. '\n<b><font color="#9664C8">🔒 OBFUSCATED CODE DETECTION</font></b>\n\n'
+			if moduleCheckboxes["obfuscation"].enabled then
+				updateProgress(currentStep, 13, "🔒 SCANNING OBFUSCATION...", "Detecting obfuscated code...")
+				results = results .. '\n<b><font color="#9664C8">🔒 OBFUSCATED CODE DETECTION</font></b>\n\n'
 
-			local obfuscatedScripts = 0
-			local obfuscatedList = {}
+				local obfuscatedScripts = 0
+				local obfuscatedList = {}
 
-			for _, script in ipairs(game:GetDescendants()) do
-				if script:IsA("Script") or script:IsA("LocalScript") or script:IsA("ModuleScript") then
+				for _, script in ipairs(scripts) do
 					local isObfuscated = false
 					local obfType = ""
 
@@ -2222,17 +2506,22 @@ local function populateScanTab(scanFrame, screenGui)
 			if #obfuscatedList > 8 then
 				results = results .. string.format('... and %d more\n', #obfuscatedList - 8)
 			end
-			if obfuscatedScripts == 0 then
-				results = results .. '<font color="#50B464">✓ No obfuscated scripts detected</font>\n'
+				if obfuscatedScripts == 0 then
+					results = results .. '<font color="#50B464">✓ No obfuscated scripts detected</font>\n'
+				end
+				task.wait(0.1)
+				currentStep = currentStep + 1
 			end
 
 			-- 10. SERVER SCRIPT MISPLACEMENT
-			results = results .. '\n<b><font color="#C8B450">📂 SERVER SCRIPT MISPLACEMENT CHECK</font></b>\n\n'
+			if moduleCheckboxes["misplacement"].enabled then
+				updateProgress(currentStep, 13, "📂 CHECKING PLACEMENT...", "Finding misplaced scripts...")
+				results = results .. '\n<b><font color="#C8B450">📂 SERVER SCRIPT MISPLACEMENT CHECK</font></b>\n\n'
 
-			local misplacedScripts = 0
-			for _, script in ipairs(game:GetDescendants()) do
-				if script:IsA("Script") and not script:IsDescendantOf(game:GetService("ServerScriptService")) and
-				   not script:IsDescendantOf(game:GetService("ServerStorage")) then
+				local misplacedScripts = 0
+				for _, script in ipairs(scripts) do
+					if script:IsA("Script") and not script:IsDescendantOf(game:GetService("ServerScriptService")) and
+					   not script:IsDescendantOf(game:GetService("ServerStorage")) then
 					misplacedScripts = misplacedScripts + 1
 					if misplacedScripts <= 5 then
 						results = results .. string.format('<font color="#C8B450">⚠️  Server Script in client location:</font>\n   ↳ %s\n',
@@ -2250,12 +2539,17 @@ local function populateScanTab(scanFrame, screenGui)
 				results = results .. '<font color="#C8B450">⚠️  Server scripts should be in ServerScriptService</font>\n'
 				totalIssues = totalIssues + 1
 				mediumIssues = mediumIssues + 1
-			else
-				results = results .. '<font color="#50B464">✓ All server scripts properly placed</font>\n'
+				else
+					results = results .. '<font color="#50B464">✓ All server scripts properly placed</font>\n'
+				end
+				task.wait(0.1)
+				currentStep = currentStep + 1
 			end
 
 			-- 11. HTTPSERVICE SECURITY
-			results = results .. '\n<b><font color="#5AA3E0">🌐 HTTPSERVICE SECURITY SCAN</font></b>\n\n'
+			if moduleCheckboxes["http"].enabled then
+				updateProgress(currentStep, 13, "🌐 SCANNING HTTP...", "Checking HttpService security...")
+				results = results .. '\n<b><font color="#5AA3E0">🌐 HTTPSERVICE SECURITY SCAN</font></b>\n\n'
 
 			local httpEnabled = pcall(function()
 				return game:GetService("HttpService"):GetAsync("https://www.google.com")
@@ -2291,17 +2585,21 @@ local function populateScanTab(scanFrame, screenGui)
 				end
 			end
 
-			if suspiciousUrls > 0 then
-				totalIssues = totalIssues + 1
-				highIssues = highIssues + 1
+				if suspiciousUrls > 0 then
+					totalIssues = totalIssues + 1
+					highIssues = highIssues + 1
+				end
+				task.wait(0.1)
+				currentStep = currentStep + 1
 			end
 
 			-- 12. DATASTORE VULNERABILITIES
-			results = results .. '\n<b><font color="#C8B450">💾 DATASTORE SECURITY</font></b>\n\n'
+			if moduleCheckboxes["datastore"].enabled then
+				updateProgress(currentStep, 13, "💾 SCANNING DATASTORES...", "Analyzing DataStore security...")
+				results = results .. '\n<b><font color="#C8B450">💾 DATASTORE SECURITY</font></b>\n\n'
 
-			local datastoreRemotes = 0
-			for _, remote in ipairs(game:GetDescendants()) do
-				if remote:IsA("RemoteEvent") or remote:IsA("RemoteFunction") then
+				local datastoreRemotes = 0
+				for _, remote in ipairs(remotes) do
 					if remote.Name:match("Data") or remote.Name:match("Save") or remote.Name:match("Load") or
 					   remote.Name:match("Store") or remote.Name:match("Database") then
 						datastoreRemotes = datastoreRemotes + 1
@@ -2313,13 +2611,16 @@ local function populateScanTab(scanFrame, screenGui)
 				end
 			end
 
-			if datastoreRemotes > 0 then
-				results = results .. string.format('\n<b>DataStore Remotes Found:</b> %d\n', datastoreRemotes)
-				results = results .. '<font color="#C8B450">⚠️  Verify server-side validation for all data operations</font>\n'
-				totalIssues = totalIssues + 1
-				mediumIssues = mediumIssues + 1
-			else
-				results = results .. '<font color="#50B464">✓ No direct DataStore remotes exposed</font>\n'
+				if datastoreRemotes > 0 then
+					results = results .. string.format('\n<b>DataStore Remotes Found:</b> %d\n', datastoreRemotes)
+					results = results .. '<font color="#C8B450">⚠️  Verify server-side validation for all data operations</font>\n'
+					totalIssues = totalIssues + 1
+					mediumIssues = mediumIssues + 1
+				else
+					results = results .. '<font color="#50B464">✓ No direct DataStore remotes exposed</font>\n'
+				end
+				task.wait(0.1)
+				currentStep = currentStep + 1
 			end
 
 			-- SUMMARY REPORT
@@ -2363,12 +2664,16 @@ local function populateScanTab(scanFrame, screenGui)
 			results = results .. '\n<font color="#C8B450">Scan completed: ' .. os.date("%Y-%m-%d %H:%M:%S") .. '</font>\n'
 
 			-- Show results
+			updateProgress(13, 13, "✓ SCAN COMPLETE!", "Generating report...")
+			task.wait(0.5)
 			createResultsWindow("Vulnerability Scan Report", results, screenGui)
 
-			-- Re-enable button
+			-- Re-enable button and hide progress
 			scanInProgress = false
 			scanButton.Text = "▶ RUN COMPREHENSIVE SCAN"
 			scanButton.BackgroundColor3 = CONFIG.Colors.AccentGreen
+			progressCard.Visible = false
+			modulesCard.Visible = true
 		end)
 	end)
 end
