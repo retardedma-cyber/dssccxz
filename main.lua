@@ -2157,20 +2157,19 @@ local function populateScanTab(scanFrame, screenGui)
 						})
 					end
 				end
-			end
 
-			results = results .. string.format('<b>Total Remotes Scanned:</b> %d\n', totalRemotes)
-			results = results .. string.format('<b><font color="#B45050">Potentially Vulnerable:</font></b> %d\n\n', #vulnerableRemotes)
+				results = results .. string.format('<b>Total Remotes Scanned:</b> %d\n', totalRemotes)
+				results = results .. string.format('<b><font color="#B45050">Potentially Vulnerable:</font></b> %d\n\n', #vulnerableRemotes)
 
-			for i, vuln in ipairs(vulnerableRemotes) do
-				if i <= 15 then
-					results = results .. string.format('<font color="#B45050">⚠️  [%s]</font> %s\n   ↳ %s\n   ↳ Path: %s\n',
-						vuln.severity, vuln.remote.ClassName, vuln.reason, vuln.remote:GetFullName())
-					totalIssues = totalIssues + 1
-					if vuln.severity == "CRITICAL" then criticalIssues = criticalIssues + 1
-					else highIssues = highIssues + 1 end
+				for i, vuln in ipairs(vulnerableRemotes) do
+					if i <= 15 then
+						results = results .. string.format('<font color="#B45050">⚠️  [%s]</font> %s\n   ↳ %s\n   ↳ Path: %s\n',
+							vuln.severity, vuln.remote.ClassName, vuln.reason, vuln.remote:GetFullName())
+						totalIssues = totalIssues + 1
+						if vuln.severity == "CRITICAL" then criticalIssues = criticalIssues + 1
+						else highIssues = highIssues + 1 end
+					end
 				end
-			end
 				if #vulnerableRemotes > 15 then
 					results = results .. string.format('... and %d more vulnerable remotes\n', #vulnerableRemotes - 15)
 				end
