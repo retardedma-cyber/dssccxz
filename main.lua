@@ -1744,9 +1744,12 @@ local function populateScanTab(scanFrame, screenGui)
 		scanButton.BackgroundColor3 = CONFIG.Colors.AccentGreen
 	end)
 
+	local scanInProgress = false
 	scanButton.MouseButton1Click:Connect(function()
-		-- Disable button during scan
-		scanButton.Enabled = false
+		-- Prevent multiple scans at once
+		if scanInProgress then return end
+
+		scanInProgress = true
 		scanButton.Text = "⏳ SCANNING..."
 		scanButton.BackgroundColor3 = CONFIG.Colors.AccentYellow
 
@@ -2058,7 +2061,7 @@ local function populateScanTab(scanFrame, screenGui)
 			createResultsWindow("Vulnerability Scan Report", results, screenGui)
 
 			-- Re-enable button
-			scanButton.Enabled = true
+			scanInProgress = false
 			scanButton.Text = "▶ RUN COMPREHENSIVE SCAN"
 			scanButton.BackgroundColor3 = CONFIG.Colors.AccentGreen
 		end)
