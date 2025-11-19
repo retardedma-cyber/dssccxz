@@ -837,10 +837,10 @@ local function attachGuiObject(obj)
 	-- First, make the object itself visible
 	if isGuiRoot(obj) then
 		obj.Enabled = true
-		print("✓ Enabled GuiRoot:", obj.Name)
+		print("[OK] Enabled GuiRoot:", obj.Name)
 	elseif obj:IsA("GuiObject") then
 		obj.Visible = true
-		print("✓ Made visible:", obj.Name)
+		print("[OK] Made visible:", obj.Name)
 	end
 
 	-- Then enable entire parent chain
@@ -849,11 +849,11 @@ local function attachGuiObject(obj)
 	while parent and depth < 20 do  -- Safety limit
 		if isGuiRoot(parent) then
 			parent.Enabled = true
-			print("✓ Enabled parent GuiRoot:", parent.Name)
+			print("[OK] Enabled parent GuiRoot:", parent.Name)
 			break
 		elseif parent:IsA("GuiObject") then
 			parent.Visible = true
-			print("✓ Made parent visible:", parent.Name)
+			print("[OK] Made parent visible:", parent.Name)
 		end
 		parent = parent.Parent
 		depth = depth + 1
@@ -1755,18 +1755,18 @@ local function populateScanTab(scanFrame, screenGui)
 
 	-- Define scan modules with their settings
 	local scanModules = {
-		{id = "anticheat", name = "🛡️  Anti-Cheat Detection", enabled = true},
-		{id = "remotes", name = "📡 Remote Endpoint Analysis", enabled = true},
-		{id = "scripts", name = "📜 Script Security Analysis", enabled = true},
-		{id = "environment", name = "🌍 Environment Pollution", enabled = true},
-		{id = "metatable", name = "🔬 Metatable Integrity", enabled = true},
-		{id = "memory", name = "🗑️  Memory Leak Detection", enabled = true},
-		{id = "gui", name = "🎨 GUI Injection Points", enabled = true},
-		{id = "backdoor", name = "🚪 Backdoor Detection", enabled = true},
-		{id = "obfuscation", name = "🔒 Obfuscated Code", enabled = true},
-		{id = "misplacement", name = "📂 Script Misplacement", enabled = true},
-		{id = "http", name = "🌐 HttpService Security", enabled = true},
-		{id = "datastore", name = "💾 DataStore Security", enabled = true},
+		{id = "anticheat", name = "Anti-Cheat Detection", enabled = true},
+		{id = "remotes", name = "Remote Endpoints", enabled = true},
+		{id = "scripts", name = "Script Security", enabled = true},
+		{id = "environment", name = "Environment Check", enabled = true},
+		{id = "metatable", name = "Metatable Integrity", enabled = true},
+		{id = "memory", name = "Memory Leaks", enabled = true},
+		{id = "gui", name = "GUI Injection", enabled = true},
+		{id = "backdoor", name = "Backdoor Detection", enabled = true},
+		{id = "obfuscation", name = "Obfuscated Code", enabled = true},
+		{id = "misplacement", name = "Script Placement", enabled = true},
+		{id = "http", name = "HttpService", enabled = true},
+		{id = "datastore", name = "DataStore Security", enabled = true},
 	}
 
 	-- Create checkboxes for each module
@@ -1775,7 +1775,7 @@ local function populateScanTab(scanFrame, screenGui)
 		local checkFrame = Instance.new("Frame")
 		checkFrame.Name = "Module_" .. module.id
 		checkFrame.Parent = modulesCard
-		checkFrame.Size = UDim2.new(0.48, 0, 0, 25)
+		checkFrame.Size = UDim2.new(0.32, 0, 0, 24)
 		checkFrame.BackgroundTransparency = 1
 		checkFrame.LayoutOrder = i + 1
 
@@ -1826,26 +1826,26 @@ local function populateScanTab(scanFrame, screenGui)
 
 	local selectAllBtn = Instance.new("TextButton")
 	selectAllBtn.Parent = selectAllFrame
-	selectAllBtn.Size = UDim2.new(0.48, -5, 0, 28)
+	selectAllBtn.Size = UDim2.new(0.49, -5, 0, 26)
 	selectAllBtn.Position = UDim2.new(0, 0, 0, 0)
 	selectAllBtn.BackgroundColor3 = CONFIG.Colors.AccentBlue
 	selectAllBtn.BorderSizePixel = 0
 	selectAllBtn.Font = CONFIG.FontBold
-	selectAllBtn.Text = "✓ SELECT ALL"
+	selectAllBtn.Text = "SELECT ALL"
 	selectAllBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-	selectAllBtn.TextSize = 12
+	selectAllBtn.TextSize = 11
 	createUICorner(4).Parent = selectAllBtn
 
 	local deselectAllBtn = Instance.new("TextButton")
 	deselectAllBtn.Parent = selectAllFrame
-	deselectAllBtn.Size = UDim2.new(0.48, -5, 0, 28)
-	deselectAllBtn.Position = UDim2.new(0.52, 0, 0, 0)
+	deselectAllBtn.Size = UDim2.new(0.49, -5, 0, 26)
+	deselectAllBtn.Position = UDim2.new(0.51, 0, 0, 0)
 	deselectAllBtn.BackgroundColor3 = CONFIG.Colors.AccentRed
 	deselectAllBtn.BorderSizePixel = 0
 	deselectAllBtn.Font = CONFIG.FontBold
-	deselectAllBtn.Text = "✗ DESELECT ALL"
+	deselectAllBtn.Text = "DESELECT ALL"
 	deselectAllBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-	deselectAllBtn.TextSize = 12
+	deselectAllBtn.TextSize = 11
 	createUICorner(4).Parent = deselectAllBtn
 
 	selectAllBtn.MouseButton1Click:Connect(function()
@@ -1881,7 +1881,7 @@ local function populateScanTab(scanFrame, screenGui)
 	progressLabel.Size = UDim2.new(1, -30, 0, 25)
 	progressLabel.BackgroundTransparency = 1
 	progressLabel.Font = CONFIG.FontBold
-	progressLabel.Text = "⏳ INITIALIZING SCAN..."
+	progressLabel.Text = "INITIALIZING SCAN..."
 	progressLabel.TextColor3 = CONFIG.Colors.Text
 	progressLabel.TextSize = 14
 	progressLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -1930,7 +1930,7 @@ local function populateScanTab(scanFrame, screenGui)
 	scanButton.BackgroundColor3 = CONFIG.Colors.AccentGreen
 	scanButton.BorderSizePixel = 0
 	scanButton.Font = CONFIG.FontBold
-	scanButton.Text = "▶ RUN COMPREHENSIVE SCAN"
+	scanButton.Text = "RUN COMPREHENSIVE SCAN"
 	scanButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 	scanButton.TextSize = 18
 	scanButton.AutoButtonColor = false
@@ -1969,7 +1969,7 @@ local function populateScanTab(scanFrame, screenGui)
 		end
 
 		if not anyEnabled then
-			progressLabel.Text = "⚠️  No modules selected!"
+			progressLabel.Text = "[!] No modules selected!"
 			progressDetail.Text = "Please select at least one scan module"
 			progressCard.Visible = true
 			task.wait(2)
@@ -1978,13 +1978,13 @@ local function populateScanTab(scanFrame, screenGui)
 		end
 
 		scanInProgress = true
-		scanButton.Text = "⏳ SCANNING..."
+		scanButton.Text = "SCANNING..."
 		scanButton.BackgroundColor3 = CONFIG.Colors.AccentYellow
 		progressCard.Visible = true
 		modulesCard.Visible = false
 
 		task.spawn(function()
-			updateProgress(0, 13, "⏳ INITIALIZING SCAN...", "Gathering game data...")
+			updateProgress(0, 13, "INITIALIZING SCAN", "Gathering game data...")
 			task.wait(0.1)
 
 			-- Collect all descendants ONCE for performance
@@ -2000,12 +2000,12 @@ local function populateScanTab(scanFrame, screenGui)
 				end
 			end
 
-			updateProgress(1, 13, "✓ DATA COLLECTED", string.format("Found %d objects, %d remotes, %d scripts", #allDescendants, #remotes, #scripts))
+			updateProgress(1, 13, "DATA COLLECTED", string.format("Found %d objects, %d remotes, %d scripts", #allDescendants, #remotes, #scripts))
 			task.wait(0.3)
 
-			local results = "<b>🔍 COMPREHENSIVE VULNERABILITY SCAN REPORT</b>\n\n"
+			local results = "<b>VULNERABILITY SCAN REPORT</b>\n\n"
 			results = results .. '<font color="#C8B450">Scan started: ' .. os.date("%Y-%m-%d %H:%M:%S") .. '</font>\n'
-			results = results .. '<font color="#5AA3E0">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</font>\n\n'
+			results = results .. '<font color="#5AA3E0">────────────────────────────────────────────</font>\n\n'
 
 			local totalIssues = 0
 			local criticalIssues = 0
@@ -2017,8 +2017,8 @@ local function populateScanTab(scanFrame, screenGui)
 
 			-- 1. ANTI-CHEAT DETECTION
 			if moduleCheckboxes["anticheat"].enabled then
-				updateProgress(currentStep, 13, "🛡️  SCANNING ANTI-CHEAT...", "Detecting admin and anti-exploit systems...")
-				results = results .. '<b><font color="#B45050">🛡️  ANTI-CHEAT SYSTEM DETECTION</font></b>\n\n'
+				updateProgress(currentStep, 13, "SCANNING ANTI-CHEAT", "Detecting admin and anti-exploit systems...")
+				results = results .. '<b><font color="#B45050">ANTI-CHEAT SYSTEM DETECTION</font></b>\n\n'
 
 				local antiCheatSystems = {
 				-- Admin Systems
@@ -2088,14 +2088,14 @@ local function populateScanTab(scanFrame, screenGui)
 				for _, ac in ipairs(antiCheatSystems) do
 					local success, detected = pcall(ac.check)
 					if success and detected then
-						results = results .. string.format('<font color="#B45050">⚠️  DETECTED:</font> %s (<font color="#B45050">%s</font>)\n', ac.name, ac.severity)
+						results = results .. string.format('<font color="#B45050">[!] DETECTED:</font> %s (<font color="#B45050">%s</font>)\n', ac.name, ac.severity)
 						totalIssues = totalIssues + 1
 						if ac.severity == "CRITICAL" then criticalIssues = criticalIssues + 1
 						elseif ac.severity == "HIGH" then highIssues = highIssues + 1
 						elseif ac.severity == "MEDIUM" then mediumIssues = mediumIssues + 1
 						else lowIssues = lowIssues + 1 end
 					else
-						results = results .. string.format('<font color="#50B464">✓ Not detected:</font> %s\n', ac.name)
+						results = results .. string.format('<font color="#50B464">[OK] Not detected:</font> %s\n', ac.name)
 					end
 				end
 				task.wait(0.1)
@@ -2104,8 +2104,8 @@ local function populateScanTab(scanFrame, screenGui)
 
 			-- 2. REMOTE ENDPOINT ANALYSIS
 			if moduleCheckboxes["remotes"].enabled then
-				updateProgress(currentStep, 13, "📡 SCANNING REMOTES...", "Analyzing remote endpoints for vulnerabilities...")
-				results = results .. '\n<b><font color="#5AA3E0">📡 REMOTE ENDPOINT VULNERABILITY ANALYSIS</font></b>\n\n'
+				updateProgress(currentStep, 13, "SCANNING REMOTES", "Analyzing remote endpoints for vulnerabilities...")
+				results = results .. '\n<b><font color="#5AA3E0">REMOTE ENDPOINT VULNERABILITY ANALYSIS</font></b>\n\n'
 
 				local vulnerableRemotes = {}
 				local totalRemotes = #remotes
@@ -2163,7 +2163,7 @@ local function populateScanTab(scanFrame, screenGui)
 
 				for i, vuln in ipairs(vulnerableRemotes) do
 					if i <= 15 then
-						results = results .. string.format('<font color="#B45050">⚠️  [%s]</font> %s\n   ↳ %s\n   ↳ Path: %s\n',
+						results = results .. string.format('<font color="#B45050">[!%s]</font> %s\n   ↳ %s\n   ↳ Path: %s\n',
 							vuln.severity, vuln.remote.ClassName, vuln.reason, vuln.remote:GetFullName())
 						totalIssues = totalIssues + 1
 						if vuln.severity == "CRITICAL" then criticalIssues = criticalIssues + 1
@@ -2179,8 +2179,8 @@ local function populateScanTab(scanFrame, screenGui)
 
 			-- 3. SCRIPT SECURITY ANALYSIS
 			if moduleCheckboxes["scripts"].enabled then
-				updateProgress(currentStep, 13, "📜 SCANNING SCRIPTS...", "Analyzing script security...")
-				results = results .. '\n<b><font color="#9664C8">📜 SCRIPT SECURITY ANALYSIS</font></b>\n\n'
+				updateProgress(currentStep, 13, "SCANNING SCRIPTS", "Analyzing script security...")
+				results = results .. '\n<b><font color="#9664C8">SCRIPT SECURITY ANALYSIS</font></b>\n\n'
 
 				local suspiciousScripts = 0
 				local totalScripts = #scripts
@@ -2215,7 +2215,7 @@ local function populateScanTab(scanFrame, screenGui)
 
 				for i, issue in ipairs(scriptIssues) do
 					if i <= 10 then
-						results = results .. string.format('<font color="#C8B450">⚠️  [%s]</font> %s\n   ↳ %s\n',
+						results = results .. string.format('<font color="#C8B450">[!%s]</font> %s\n   ↳ %s\n',
 							issue.severity, issue.script, issue.issue)
 						totalIssues = totalIssues + 1
 						mediumIssues = mediumIssues + 1
@@ -2227,8 +2227,8 @@ local function populateScanTab(scanFrame, screenGui)
 
 			-- 4. ENVIRONMENT POLLUTION CHECK
 			if moduleCheckboxes["environment"].enabled then
-				updateProgress(currentStep, 13, "🌍 CHECKING ENVIRONMENT...", "Detecting executor function pollution...")
-				results = results .. '\n<b><font color="#C8B450">🌍 ENVIRONMENT POLLUTION ANALYSIS</font></b>\n\n'
+				updateProgress(currentStep, 13, "CHECKING ENVIRONMENT", "Detecting executor function pollution...")
+				results = results .. '\n<b><font color="#C8B450">ENVIRONMENT POLLUTION ANALYSIS</font></b>\n\n'
 
 				local executorFunctions = {
 					"getgenv", "getrenv", "getsenv", "getrawmetatable", "setrawmetatable",
@@ -2249,7 +2249,7 @@ local function populateScanTab(scanFrame, screenGui)
 					pollutionLevel, detectedPollution, #executorFunctions)
 
 				if detectedPollution > 0 then
-					results = results .. '<font color="#C8B450">⚠️  Executor functions detected in global environment</font>\n'
+					results = results .. '<font color="#C8B450">[!] Executor functions detected in global environment</font>\n'
 					totalIssues = totalIssues + 1
 					if pollutionLevel == "HIGH" then highIssues = highIssues + 1
 					else mediumIssues = mediumIssues + 1 end
@@ -2260,8 +2260,8 @@ local function populateScanTab(scanFrame, screenGui)
 
 			-- 5. METATABLE INTEGRITY CHECK
 			if moduleCheckboxes["metatable"].enabled then
-				updateProgress(currentStep, 13, "🔬 CHECKING METATABLES...", "Analyzing metatable integrity...")
-				results = results .. '\n<b><font color="#9664C8">🔬 METATABLE INTEGRITY CHECK</font></b>\n\n'
+				updateProgress(currentStep, 13, "CHECKING METATABLES", "Analyzing metatable integrity...")
+				results = results .. '\n<b><font color="#9664C8">METATABLE INTEGRITY CHECK</font></b>\n\n'
 
 				if getrawmetatable then
 					local metatableHooked = false
@@ -2276,15 +2276,15 @@ local function populateScanTab(scanFrame, screenGui)
 					end)
 
 					if metatableHooked then
-						results = results .. '<font color="#B45050">⚠️  CRITICAL: __namecall appears hooked!</font>\n'
+						results = results .. '<font color="#B45050">[!] CRITICAL: __namecall appears hooked!</font>\n'
 						results = results .. '   ↳ Possible metamethod tampering detected\n'
 						totalIssues = totalIssues + 1
 						criticalIssues = criticalIssues + 1
 					else
-						results = results .. '<font color="#50B464">✓ Metatables appear clean</font>\n'
+						results = results .. '<font color="#50B464">[OK] Metatables appear clean</font>\n'
 					end
 				else
-					results = results .. '<font color="#C8B450">⚠️  Cannot check (getrawmetatable unavailable)</font>\n'
+					results = results .. '<font color="#C8B450">[!] Cannot check (getrawmetatable unavailable)</font>\n'
 				end
 				task.wait(0.1)
 				currentStep = currentStep + 1
@@ -2292,8 +2292,8 @@ local function populateScanTab(scanFrame, screenGui)
 
 			-- 6. MEMORY LEAK DETECTION
 			if moduleCheckboxes["memory"].enabled then
-				updateProgress(currentStep, 13, "🗑️  SCANNING MEMORY...", "Detecting memory leaks...")
-				results = results .. '\n<b><font color="#50B464">🗑️  MEMORY LEAK DETECTION</font></b>\n\n'
+				updateProgress(currentStep, 13, "SCANNING MEMORY", "Detecting memory leaks...")
+				results = results .. '\n<b><font color="#50B464">MEMORY LEAK DETECTION</font></b>\n\n'
 
 				if getgc then
 					local gcObjects = getgc(true)
@@ -2313,14 +2313,14 @@ local function populateScanTab(scanFrame, screenGui)
 					results = results .. string.format('<b>Hidden Instances:</b> %d\n', hiddenInstances)
 
 					if hiddenInstances > 50 then
-						results = results .. '<font color="#C8B450">⚠️  Possible memory leaks detected</font>\n'
+						results = results .. '<font color="#C8B450">[!] Possible memory leaks detected</font>\n'
 						totalIssues = totalIssues + 1
 						mediumIssues = mediumIssues + 1
 					else
-						results = results .. '<font color="#50B464">✓ Memory appears healthy</font>\n'
+						results = results .. '<font color="#50B464">[OK] Memory appears healthy</font>\n'
 					end
 				else
-					results = results .. '<font color="#C8B450">⚠️  Cannot scan (getgc unavailable)</font>\n'
+					results = results .. '<font color="#C8B450">[!] Cannot scan (getgc unavailable)</font>\n'
 				end
 				task.wait(0.1)
 				currentStep = currentStep + 1
@@ -2328,8 +2328,8 @@ local function populateScanTab(scanFrame, screenGui)
 
 			-- 7. GUI INJECTION POINTS
 			if moduleCheckboxes["gui"].enabled then
-				updateProgress(currentStep, 13, "🎨 SCANNING GUI...", "Analyzing GUI injection points...")
-				results = results .. '\n<b><font color="#5AA3E0">🎨 GUI INJECTION VULNERABILITY SCAN</font></b>\n\n'
+				updateProgress(currentStep, 13, "SCANNING GUI", "Analyzing GUI injection points...")
+				results = results .. '\n<b><font color="#5AA3E0">GUI INJECTION VULNERABILITY SCAN</font></b>\n\n'
 
 				local textBoxes = 0
 				local unsanitizedInputs = 0
@@ -2348,7 +2348,7 @@ local function populateScanTab(scanFrame, screenGui)
 				results = results .. string.format('<b>Potentially Exploitable:</b> %d\n', unsanitizedInputs)
 
 				if unsanitizedInputs > 0 then
-					results = results .. '<font color="#C8B450">⚠️  Unsanitized user input fields detected</font>\n'
+					results = results .. '<font color="#C8B450">[!] Unsanitized user input fields detected</font>\n'
 					totalIssues = totalIssues + 1
 					lowIssues = lowIssues + 1
 				end
@@ -2358,8 +2358,8 @@ local function populateScanTab(scanFrame, screenGui)
 
 			-- 8. BACKDOOR DETECTION
 			if moduleCheckboxes["backdoor"].enabled then
-				updateProgress(currentStep, 13, "🚪 SCANNING BACKDOORS...", "Detecting suspicious scripts...")
-				results = results .. '\n<b><font color="#B45050">🚪 BACKDOOR DETECTION</font></b>\n\n'
+				updateProgress(currentStep, 13, "SCANNING BACKDOORS", "Detecting suspicious scripts...")
+				results = results .. '\n<b><font color="#B45050">BACKDOOR DETECTION</font></b>\n\n'
 
 				local backdoorIndicators = 0
 				local suspiciousRequires = {}
@@ -2413,7 +2413,7 @@ local function populateScanTab(scanFrame, screenGui)
 				results = results .. string.format('<b>Backdoor Indicators:</b> %d\n\n', backdoorIndicators)
 				for i, suspect in ipairs(suspiciousRequires) do
 					if i <= 10 then
-						results = results .. string.format('<font color="#B45050">⚠️  %s</font>\n   ↳ %s\n   ↳ Path: %s\n',
+						results = results .. string.format('<font color="#B45050">[!] %s</font>\n   ↳ %s\n   ↳ Path: %s\n',
 							suspect.name, suspect.reason, suspect.path)
 						totalIssues = totalIssues + 1
 						highIssues = highIssues + 1
@@ -2423,7 +2423,7 @@ local function populateScanTab(scanFrame, screenGui)
 					results = results .. string.format('... and %d more\n', #suspiciousRequires - 10)
 				end
 				if backdoorIndicators == 0 then
-					results = results .. '<font color="#50B464">✓ No obvious backdoors detected</font>\n'
+					results = results .. '<font color="#50B464">[OK] No obvious backdoors detected</font>\n'
 				end
 				task.wait(0.1)
 				currentStep = currentStep + 1
@@ -2431,17 +2431,19 @@ local function populateScanTab(scanFrame, screenGui)
 
 			-- 9. OBFUSCATED CODE DETECTION
 			if moduleCheckboxes["obfuscation"].enabled then
-				updateProgress(currentStep, 13, "🔒 SCANNING OBFUSCATION...", "Detecting obfuscated code...")
-				results = results .. '\n<b><font color="#9664C8">🔒 OBFUSCATED CODE DETECTION</font></b>\n\n'
+				updateProgress(currentStep, 13, "SCANNING OBFUSCATION", "Detecting obfuscated code...")
+				results = results .. '\n<b><font color="#9664C8">OBFUSCATED CODE DETECTION</font></b>\n\n'
 
 				local obfuscatedScripts = 0
 				local obfuscatedList = {}
+				local decompileCount = 0
+				local maxDecompile = 50 -- Limit decompile calls for performance
 
 				for _, script in ipairs(scripts) do
 					local isObfuscated = false
 					local obfType = ""
 
-					-- Check script name for obfuscation patterns
+					-- Check script name for obfuscation patterns (fast check)
 					local name = script.Name
 					if name:match("^[a-f0-9]+$") or -- Hex names
 					   name:match("^[IL1O0]+$") or -- Confusing characters
@@ -2451,30 +2453,23 @@ local function populateScanTab(scanFrame, screenGui)
 						obfType = "Suspicious name pattern"
 					end
 
-					-- Check for common obfuscator signatures
-					if decompile then
+					-- Only decompile if name is suspicious and under limit (performance)
+					if decompile and isObfuscated and decompileCount < maxDecompile then
+						decompileCount = decompileCount + 1
 						pcall(function()
 							local source = decompile(script)
 							if source then
 								-- Luraph signature
 								if source:match("luraph") or source:match("LPH_") then
-									isObfuscated = true
-									obfType = "Luraph obfuscation detected"
+									obfType = "Luraph obfuscation"
 								end
 								-- IronBrew signature
 								if source:match("IronBrew") or source:match("PSU_") then
-									isObfuscated = true
-									obfType = "IronBrew obfuscation detected"
+									obfType = "IronBrew obfuscation"
 								end
 								-- Synapse Xen signature
 								if source:match("Xen_") or source:match("luaU_") then
-									isObfuscated = true
-									obfType = "Synapse Xen detected"
-								end
-								-- Generic obfuscation indicators
-								if source:match("getfenv") and source:match("setfenv") and source:len() > 5000 then
-									isObfuscated = true
-									obfType = "Heavy getfenv/setfenv usage (likely obfuscated)"
+									obfType = "Synapse Xen obfuscation"
 								end
 							end
 						end)
@@ -2493,7 +2488,7 @@ local function populateScanTab(scanFrame, screenGui)
 				results = results .. string.format('<b>Obfuscated Scripts:</b> %d\n\n', obfuscatedScripts)
 				for i, obf in ipairs(obfuscatedList) do
 					if i <= 8 then
-						results = results .. string.format('<font color="#9664C8">🔒 %s</font>\n   ↳ %s\n   ↳ Path: %s\n',
+						results = results .. string.format('<font color="#9664C8">[OBF] %s</font>\n   ↳ %s\n   ↳ Path: %s\n',
 							obf.name, obf.type, obf.path)
 						totalIssues = totalIssues + 1
 						mediumIssues = mediumIssues + 1
@@ -2503,7 +2498,7 @@ local function populateScanTab(scanFrame, screenGui)
 					results = results .. string.format('... and %d more\n', #obfuscatedList - 8)
 				end
 				if obfuscatedScripts == 0 then
-					results = results .. '<font color="#50B464">✓ No obfuscated scripts detected</font>\n'
+					results = results .. '<font color="#50B464">[OK] No obfuscated scripts detected</font>\n'
 				end
 				task.wait(0.1)
 				currentStep = currentStep + 1
@@ -2511,8 +2506,8 @@ local function populateScanTab(scanFrame, screenGui)
 
 			-- 10. SERVER SCRIPT MISPLACEMENT
 			if moduleCheckboxes["misplacement"].enabled then
-				updateProgress(currentStep, 13, "📂 CHECKING PLACEMENT...", "Finding misplaced scripts...")
-				results = results .. '\n<b><font color="#C8B450">📂 SERVER SCRIPT MISPLACEMENT CHECK</font></b>\n\n'
+				updateProgress(currentStep, 13, "CHECKING PLACEMENT", "Finding misplaced scripts...")
+				results = results .. '\n<b><font color="#C8B450">SERVER SCRIPT MISPLACEMENT CHECK</font></b>\n\n'
 
 				local misplacedScripts = 0
 				for _, script in ipairs(scripts) do
@@ -2520,7 +2515,7 @@ local function populateScanTab(scanFrame, screenGui)
 					   not script:IsDescendantOf(game:GetService("ServerStorage")) then
 						misplacedScripts = misplacedScripts + 1
 						if misplacedScripts <= 5 then
-							results = results .. string.format('<font color="#C8B450">⚠️  Server Script in client location:</font>\n   ↳ %s\n',
+							results = results .. string.format('<font color="#C8B450">[!] Server Script in client location:</font>\n   ↳ %s\n',
 								script:GetFullName())
 						end
 					end
@@ -2532,11 +2527,11 @@ local function populateScanTab(scanFrame, screenGui)
 
 				if misplacedScripts > 0 then
 					results = results .. string.format('\n<b>Total Misplaced:</b> %d\n', misplacedScripts)
-					results = results .. '<font color="#C8B450">⚠️  Server scripts should be in ServerScriptService</font>\n'
+					results = results .. '<font color="#C8B450">[!] Server scripts should be in ServerScriptService</font>\n'
 					totalIssues = totalIssues + 1
 					mediumIssues = mediumIssues + 1
 				else
-					results = results .. '<font color="#50B464">✓ All server scripts properly placed</font>\n'
+					results = results .. '<font color="#50B464">[OK] All server scripts properly placed</font>\n'
 				end
 				task.wait(0.1)
 				currentStep = currentStep + 1
@@ -2544,21 +2539,21 @@ local function populateScanTab(scanFrame, screenGui)
 
 			-- 11. HTTPSERVICE SECURITY
 			if moduleCheckboxes["http"].enabled then
-				updateProgress(currentStep, 13, "🌐 SCANNING HTTP...", "Checking HttpService security...")
-				results = results .. '\n<b><font color="#5AA3E0">🌐 HTTPSERVICE SECURITY SCAN</font></b>\n\n'
+				updateProgress(currentStep, 13, "SCANNING HTTP", "Checking HttpService security...")
+				results = results .. '\n<b><font color="#5AA3E0">HTTPSERVICE SECURITY SCAN</font></b>\n\n'
 
 				local httpEnabled = pcall(function()
 					return game:GetService("HttpService"):GetAsync("https://www.google.com")
 				end)
 
 				if httpEnabled then
-					results = results .. '<font color="#C8B450">⚠️  HttpService is ENABLED</font>\n'
+					results = results .. '<font color="#C8B450">[!] HttpService is ENABLED</font>\n'
 					results = results .. '   ↳ External HTTP requests allowed\n'
 					results = results .. '   ↳ Potential data exfiltration risk\n'
 					totalIssues = totalIssues + 1
 					mediumIssues = mediumIssues + 1
 				else
-					results = results .. '<font color="#50B464">✓ HttpService disabled or restricted</font>\n'
+					results = results .. '<font color="#50B464">[OK] HttpService disabled or restricted</font>\n'
 				end
 
 				-- Check for suspicious URLs in scripts
@@ -2572,7 +2567,7 @@ local function populateScanTab(scanFrame, screenGui)
 									-- Check for non-Roblox URLs
 									if not source:match("roblox%.com") and not source:match("rbxcdn%.com") then
 										suspiciousUrls = suspiciousUrls + 1
-										results = results .. string.format('<font color="#B45050">⚠️  External URL found in:</font> %s\n',
+										results = results .. string.format('<font color="#B45050">[!] External URL found in:</font> %s\n',
 											script:GetFullName())
 									end
 								end
@@ -2591,8 +2586,8 @@ local function populateScanTab(scanFrame, screenGui)
 
 			-- 12. DATASTORE VULNERABILITIES
 			if moduleCheckboxes["datastore"].enabled then
-				updateProgress(currentStep, 13, "💾 SCANNING DATASTORES...", "Analyzing DataStore security...")
-				results = results .. '\n<b><font color="#C8B450">💾 DATASTORE SECURITY</font></b>\n\n'
+				updateProgress(currentStep, 13, "SCANNING DATASTORES", "Analyzing DataStore security...")
+				results = results .. '\n<b><font color="#C8B450">DATASTORE SECURITY</font></b>\n\n'
 
 				local datastoreRemotes = 0
 				for _, remote in ipairs(remotes) do
@@ -2600,7 +2595,7 @@ local function populateScanTab(scanFrame, screenGui)
 					   remote.Name:match("Store") or remote.Name:match("Database") then
 						datastoreRemotes = datastoreRemotes + 1
 						if datastoreRemotes <= 5 then
-							results = results .. string.format('<font color="#C8B450">⚠️  DataStore-related remote:</font> %s\n',
+							results = results .. string.format('<font color="#C8B450">[!] DataStore-related remote:</font> %s\n',
 								remote:GetFullName())
 						end
 					end
@@ -2608,19 +2603,19 @@ local function populateScanTab(scanFrame, screenGui)
 
 				if datastoreRemotes > 0 then
 					results = results .. string.format('\n<b>DataStore Remotes Found:</b> %d\n', datastoreRemotes)
-					results = results .. '<font color="#C8B450">⚠️  Verify server-side validation for all data operations</font>\n'
+					results = results .. '<font color="#C8B450">[!] Verify server-side validation for all data operations</font>\n'
 					totalIssues = totalIssues + 1
 					mediumIssues = mediumIssues + 1
 				else
-					results = results .. '<font color="#50B464">✓ No direct DataStore remotes exposed</font>\n'
+					results = results .. '<font color="#50B464">[OK] No direct DataStore remotes exposed</font>\n'
 				end
 				task.wait(0.1)
 				currentStep = currentStep + 1
 			end
 
 			-- SUMMARY REPORT
-			results = results .. '\n<font color="#5AA3E0">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</font>\n'
-			results = results .. '<b><font color="#C8B450">📊 SCAN SUMMARY</font></b>\n\n'
+			results = results .. '\n<font color="#5AA3E0">────────────────────────────────────────────</font>\n'
+			results = results .. '<b><font color="#C8B450">SCAN SUMMARY</font></b>\n\n'
 
 			results = results .. string.format('<b>Total Issues Found:</b> <font color="%s">%d</font>\n',
 				totalIssues > 10 and "#B45050" or totalIssues > 5 and "#C8B450" or "#50B464", totalIssues)
@@ -2631,15 +2626,15 @@ local function populateScanTab(scanFrame, screenGui)
 
 			results = results .. '\n<b>Security Rating:</b> '
 			if totalIssues == 0 then
-				results = results .. '<font color="#50B464">EXCELLENT ★★★★★</font>\n'
+				results = results .. '<font color="#50B464">EXCELLENT [A+]</font>\n'
 			elseif totalIssues <= 3 then
-				results = results .. '<font color="#50B464">GOOD ★★★★☆</font>\n'
+				results = results .. '<font color="#50B464">GOOD [B]</font>\n'
 			elseif totalIssues <= 7 then
-				results = results .. '<font color="#C8B450">FAIR ★★★☆☆</font>\n'
+				results = results .. '<font color="#C8B450">FAIR [C]</font>\n'
 			elseif totalIssues <= 12 then
-				results = results .. '<font color="#B45050">POOR ★★☆☆☆</font>\n'
+				results = results .. '<font color="#B45050">POOR [D]</font>\n'
 			else
-				results = results .. '<font color="#B45050">CRITICAL ★☆☆☆☆</font>\n'
+				results = results .. '<font color="#B45050">CRITICAL [F]</font>\n'
 			end
 
 			results = results .. '\n<b>Recommendations:</b>\n'
@@ -2659,13 +2654,13 @@ local function populateScanTab(scanFrame, screenGui)
 			results = results .. '\n<font color="#C8B450">Scan completed: ' .. os.date("%Y-%m-%d %H:%M:%S") .. '</font>\n'
 
 			-- Show results
-			updateProgress(13, 13, "✓ SCAN COMPLETE!", "Generating report...")
+			updateProgress(13, 13, "SCAN COMPLETE", "Generating report...")
 			task.wait(0.5)
 			createResultsWindow("Vulnerability Scan Report", results, screenGui)
 
 			-- Re-enable button and hide progress
 			scanInProgress = false
-			scanButton.Text = "▶ RUN COMPREHENSIVE SCAN"
+			scanButton.Text = "RUN COMPREHENSIVE SCAN"
 			scanButton.BackgroundColor3 = CONFIG.Colors.AccentGreen
 			progressCard.Visible = false
 			modulesCard.Visible = true
@@ -2901,13 +2896,13 @@ local function populateToolsTab(toolsFrame, screenGui)
 
 				results = results .. '\n<b>🔧 HOOK CAPABILITIES:</b>\n'
 				if hookfunction then
-					results = results .. '<font color="#50B464">✓ hookfunction available</font>\n'
+					results = results .. '<font color="#50B464">[OK] hookfunction available</font>\n'
 				else
 					results = results .. '<font color="#B45050">✗ hookfunction not available</font>\n'
 				end
 
 				if hookmetamethod then
-					results = results .. '<font color="#50B464">✓ hookmetamethod available</font>\n'
+					results = results .. '<font color="#50B464">[OK] hookmetamethod available</font>\n'
 				else
 					results = results .. '<font color="#B45050">✗ hookmetamethod not available</font>\n'
 				end
@@ -3016,7 +3011,7 @@ local function populateToolsTab(toolsFrame, screenGui)
 					"hookfunction", "hookmetamethod", "newcclosure"
 				}
 
-				results = results .. '<b><font color="#B45050">⚠️  SCANNING FOR DANGEROUS PATTERNS</font></b>\n\n'
+				results = results .. '<b><font color="#B45050">[!] SCANNING FOR DANGEROUS PATTERNS</font></b>\n\n'
 
 				local scriptsScanned = 0
 				local suspiciousScripts = {}
@@ -3050,7 +3045,7 @@ local function populateToolsTab(toolsFrame, screenGui)
 				results = results .. string.format('<b><font color="#B45050">Suspicious Scripts: %d</font></b>\n\n', #suspiciousScripts)
 
 				if #suspiciousScripts > 0 then
-					results = results .. '<b>⚠️  SUSPICIOUS SCRIPTS:</b>\n'
+					results = results .. '<b>[!] SUSPICIOUS SCRIPTS:</b>\n'
 					for i, data in ipairs(suspiciousScripts) do
 						if i <= 20 then
 							results = results .. string.format('<font color="#B45050">%d.</font> %s\n   ↳ %s\n', i, data.script:GetFullName(), data.reason)
@@ -3060,7 +3055,7 @@ local function populateToolsTab(toolsFrame, screenGui)
 						results = results .. string.format('\n... and %d more\n', #suspiciousScripts - 20)
 					end
 				else
-					results = results .. '<font color="#50B464">✓ No obvious suspicious patterns detected</font>\n'
+					results = results .. '<font color="#50B464">[OK] No obvious suspicious patterns detected</font>\n'
 				end
 
 				results = results .. '\n<b>Note:</b> This is a basic scan. Advanced exploits may not be detected.'
@@ -3101,19 +3096,19 @@ local function populateToolsTab(toolsFrame, screenGui)
 				results = results .. '\n<b>🔧 ANALYSIS CAPABILITIES:</b>\n'
 
 				if getsenv then
-					results = results .. '<font color="#50B464">✓ getsenv</font> - Can access script environments\n'
+					results = results .. '<font color="#50B464">[OK] getsenv</font> - Can access script environments\n'
 				else
 					results = results .. '<font color="#B45050">✗ getsenv</font> - Not available\n'
 				end
 
 				if getgc then
-					results = results .. '<font color="#50B464">✓ getgc</font> - Can analyze garbage collector\n'
+					results = results .. '<font color="#50B464">[OK] getgc</font> - Can analyze garbage collector\n'
 				else
 					results = results .. '<font color="#B45050">✗ getgc</font> - Not available\n'
 				end
 
 				if debug and debug.getinfo then
-					results = results .. '<font color="#50B464">✓ debug.getinfo</font> - Can inspect functions\n'
+					results = results .. '<font color="#50B464">[OK] debug.getinfo</font> - Can inspect functions\n'
 				else
 					results = results .. '<font color="#B45050">✗ debug.getinfo</font> - Not available\n'
 				end
@@ -3463,13 +3458,13 @@ local function populateToolsTab(toolsFrame, screenGui)
 				results = results .. '\n<b><font color="#50B464">💡 OPTIMIZATION SUGGESTIONS:</font></b>\n'
 
 				if memoryByClass["Part"] and memoryByClass["Part"] > 1000 then
-					results = results .. '⚠️  High Part count - Consider using MeshParts or unions\n'
+					results = results .. '[!] High Part count - Consider using MeshParts or unions\n'
 				end
 				if memoryByClass["Script"] and memoryByClass["Script"] > 100 then
-					results = results .. '⚠️  Many Scripts - Consider consolidating logic\n'
+					results = results .. '[!] Many Scripts - Consider consolidating logic\n'
 				end
 				if memoryByClass["Sound"] and memoryByClass["Sound"] > 50 then
-					results = results .. '⚠️  Many Sound objects - Consider sound pooling\n'
+					results = results .. '[!] Many Sound objects - Consider sound pooling\n'
 				end
 
 				results = results .. '\n<b>📡 CONNECTION ANALYSIS:</b>\n'
@@ -3690,7 +3685,7 @@ local function populateToolsTab(toolsFrame, screenGui)
 				pcall(function()
 					local gameMT = getrawmetatable(game)
 					if gameMT then
-						results = results .. '<font color="#50B464">✓ Game metatable accessible</font>\n\n'
+						results = results .. '<font color="#50B464">[OK] Game metatable accessible</font>\n\n'
 
 						results = results .. '<b>Metamethods Present:</b>\n'
 						for _, method in ipairs(metamethods) do
@@ -3734,19 +3729,19 @@ local function populateToolsTab(toolsFrame, screenGui)
 				-- Check hooking capabilities
 				results = results .. '\n<b>🔧 HOOKING CAPABILITIES:</b>\n'
 				if hookmetamethod then
-					results = results .. '<font color="#50B464">✓ hookmetamethod</font> - Can hook metamethods\n'
+					results = results .. '<font color="#50B464">[OK] hookmetamethod</font> - Can hook metamethods\n'
 				else
 					results = results .. '<font color="#B45050">✗ hookmetamethod</font> - Not available\n'
 				end
 
 				if getrawmetatable then
-					results = results .. '<font color="#50B464">✓ getrawmetatable</font> - Can access metatables\n'
+					results = results .. '<font color="#50B464">[OK] getrawmetatable</font> - Can access metatables\n'
 				else
 					results = results .. '<font color="#B45050">✗ getrawmetatable</font> - Not available\n'
 				end
 
 				if setrawmetatable then
-					results = results .. '<font color="#50B464">✓ setrawmetatable</font> - Can modify metatables\n'
+					results = results .. '<font color="#50B464">[OK] setrawmetatable</font> - Can modify metatables\n'
 				else
 					results = results .. '<font color="#B45050">✗ setrawmetatable</font> - Not available\n'
 				end
@@ -3769,25 +3764,25 @@ local function populateToolsTab(toolsFrame, screenGui)
 				local hasGetConstants = getconstants ~= nil
 
 				if hasDebug then
-					results = results .. '<font color="#50B464">✓ debug.getupvalue/setupvalue</font> - Can read/write upvalues\n'
+					results = results .. '<font color="#50B464">[OK] debug.getupvalue/setupvalue</font> - Can read/write upvalues\n'
 				else
 					results = results .. '<font color="#B45050">✗ debug.getupvalue/setupvalue</font> - Not available\n'
 				end
 
 				if hasGetUpvalues then
-					results = results .. '<font color="#50B464">✓ getupvalues</font> - Can dump all upvalues\n'
+					results = results .. '<font color="#50B464">[OK] getupvalues</font> - Can dump all upvalues\n'
 				else
 					results = results .. '<font color="#B45050">✗ getupvalues</font> - Not available\n'
 				end
 
 				if hasGetConstants then
-					results = results .. '<font color="#50B464">✓ getconstants</font> - Can extract constants\n'
+					results = results .. '<font color="#50B464">[OK] getconstants</font> - Can extract constants\n'
 				else
 					results = results .. '<font color="#B45050">✗ getconstants</font> - Not available\n'
 				end
 
 				if getinfo then
-					results = results .. '<font color="#50B464">✓ getinfo</font> - Can analyze function info\n'
+					results = results .. '<font color="#50B464">[OK] getinfo</font> - Can analyze function info\n'
 				else
 					results = results .. '<font color="#B45050">✗ getinfo</font> - Not available\n'
 				end
@@ -3904,7 +3899,7 @@ local function populateToolsTab(toolsFrame, screenGui)
 					return
 				end
 
-				results = results .. '<font color="#50B464">✓ getgc() available - Scanning...</font>\n\n'
+				results = results .. '<font color="#50B464">[OK] getgc() available - Scanning...</font>\n\n'
 
 				-- Scan GC
 				local gcObjects = getgc(true) -- true = include tables
@@ -4011,25 +4006,25 @@ local function populateToolsTab(toolsFrame, screenGui)
 				results = results .. '<b>🔧 HOOKING CAPABILITIES:</b>\n'
 
 				if hookfunction then
-					results = results .. '<font color="#50B464">✓ hookfunction</font> - Can hook any function\n'
+					results = results .. '<font color="#50B464">[OK] hookfunction</font> - Can hook any function\n'
 				else
 					results = results .. '<font color="#B45050">✗ hookfunction</font> - Not available\n'
 				end
 
 				if hookmetamethod then
-					results = results .. '<font color="#50B464">✓ hookmetamethod</font> - Can hook metamethods\n'
+					results = results .. '<font color="#50B464">[OK] hookmetamethod</font> - Can hook metamethods\n'
 				else
 					results = results .. '<font color="#B45050">✗ hookmetamethod</font> - Not available\n'
 				end
 
 				if newcclosure then
-					results = results .. '<font color="#50B464">✓ newcclosure</font> - Can create C closures\n'
+					results = results .. '<font color="#50B464">[OK] newcclosure</font> - Can create C closures\n'
 				else
 					results = results .. '<font color="#B45050">✗ newcclosure</font> - Not available\n'
 				end
 
 				if replaceclosure then
-					results = results .. '<font color="#50B464">✓ replaceclosure</font> - Can replace closures\n'
+					results = results .. '<font color="#50B464">[OK] replaceclosure</font> - Can replace closures\n'
 				else
 					results = results .. '<font color="#B45050">✗ replaceclosure</font> - Not available\n'
 				end
@@ -4289,25 +4284,25 @@ local function populateToolsTab(toolsFrame, screenGui)
 				results = results .. '<b>🔧 CAPABILITIES:</b>\n'
 
 				if debug and debug.traceback then
-					results = results .. '<font color="#50B464">✓ debug.traceback</font> - Can get stack traces\n'
+					results = results .. '<font color="#50B464">[OK] debug.traceback</font> - Can get stack traces\n'
 				else
 					results = results .. '<font color="#B45050">✗ debug.traceback</font> - Not available\n'
 				end
 
 				if debug and debug.getinfo then
-					results = results .. '<font color="#50B464">✓ debug.getinfo</font> - Can analyze stack frames\n'
+					results = results .. '<font color="#50B464">[OK] debug.getinfo</font> - Can analyze stack frames\n'
 				else
 					results = results .. '<font color="#B45050">✗ debug.getinfo</font> - Not available\n'
 				end
 
 				if getcallingscript then
-					results = results .. '<font color="#50B464">✓ getcallingscript</font> - Can identify caller\n'
+					results = results .. '<font color="#50B464">[OK] getcallingscript</font> - Can identify caller\n'
 				else
 					results = results .. '<font color="#B45050">✗ getcallingscript</font> - Not available\n'
 				end
 
 				if checkcaller then
-					results = results .. '<font color="#50B464">✓ checkcaller</font> - Can verify caller source\n'
+					results = results .. '<font color="#50B464">[OK] checkcaller</font> - Can verify caller source\n'
 				else
 					results = results .. '<font color="#B45050">✗ checkcaller</font> - Not available\n'
 				end
@@ -4865,7 +4860,7 @@ local function setupChatSpy(chatScroll)
 		successMsg.BorderSizePixel = 0
 		successMsg.Font = CONFIG.FontBold
 		local chatType = useNewChat and "TextChatService" or "Legacy Chat"
-		successMsg.Text = string.format("✓ Chat Spy Active (%s)\n\nMonitoring all chat messages", chatType)
+		successMsg.Text = string.format("[OK] Chat Spy Active (%s)\n\nMonitoring all chat messages", chatType)
 		successMsg.TextColor3 = Color3.fromRGB(255, 255, 255)
 		successMsg.TextSize = 11
 		successMsg.TextWrapped = true
